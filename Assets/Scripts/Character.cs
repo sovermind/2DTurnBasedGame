@@ -113,15 +113,56 @@ public class Character : MonoBehaviour {
 		charAnimator.enabled = false;
 	}
 
+	/// <summary>
+	/// Switch the action state to the new state. Will check if the transition is allowed.
+	/// If not allowed, will return false
+	/// </summary>
+	/// <param name="newState"></param>
+	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
 		_characterCurrentActionState = newState;
 		return true;
 	}
 
+
+	/// <summary>
+	/// End the current turn. Does not make much a difference for AI. 
+	/// But for player controlled characters, player can choose to end the turn despite the current stats of characters
+	/// </summary>
 	public void EndThisTurn() {
 		hasFinishedThisTurn = false;
 		SwitchActionStateTo(ECharacterActionState.InActive);
 		// restore action points
 		_actionPoints = maxActionPoints;
+	}
+
+	/// <summary>
+	/// Calculate all attackable cells. A cell is attackable if
+	/// 1. it is within the attack range.
+	/// 2. there is no blocking cells between curCharCell and the target cell
+	/// </summary>
+	/// <returns></returns>
+	public List<HexCell> GetAllAttackableCells() {
+		// First get all potential cells within attack range
+		List<HexCell> allPotentialAttackableCells = HexMap.hexMap.AllCellsWithinRadius(charCurHexCell, attackRangeRadius);
+
+		// (TODO): Then check if there's obstacles in between
+
+		return allPotentialAttackableCells;
+	}
+
+	/// <summary>
+	/// Check if the character can attack the target cell
+	/// </summary>
+	/// <param name="targetCell"></param>
+	/// <returns></returns>
+	public bool IsTargetAttackable(HexCell targetCell) {
+		List<HexCell> allAttackableCells = GetAllAttackableCells();
+		foreach (HexCell curCell in allAttackableCells) {
+			if (curCell.Equals(targetCell)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

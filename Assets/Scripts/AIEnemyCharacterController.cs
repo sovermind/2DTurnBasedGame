@@ -8,11 +8,13 @@ using UnityEngine;
 public class AIEnemyCharacterController : MyCharacterController {
 
 	GameObject[] PlayerControlCharacters;
+	GameObject curTargetCharGO;
 
 	// Start is called before the first frame update
 	protected override void Start() {
 		base.Start();
 		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
+		curTargetCharGO = new GameObject();
 	}
 
 	protected override void Update() {
@@ -25,10 +27,19 @@ public class AIEnemyCharacterController : MyCharacterController {
 			default:
 				break;
 		}
-
 	}
 
 	void AIEnemyCheckCharacterStates() {
+		// (TODO): Choose the appropriate target char
+		curTargetCharGO = PlayerControlCharacters[0];
+
+		// Get the target world position
+		Vector3 curTargetCharPos = curTargetCharGO.transform.position;
+		HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharPos);
+
+		// Get the current character world position and hex cell
+		Vector3 curPos = transform.position;
+		HexCell curCell = HexMap.hexMap.GetHexCellFromWorldPos(curPos);
 
 		switch (curCharactor.characterCurrentActionState) {
 			case ECharacterActionState.InActive:
@@ -37,13 +48,6 @@ public class AIEnemyCharacterController : MyCharacterController {
 			case ECharacterActionState.Idle:
 				// If still have action points, move towards it's target
 				if (curCharactor.actionPoints > 0) {
-					GameObject curTargetChar = PlayerControlCharacters[0];
-					Vector3 curTargetCharPos = curTargetChar.transform.position;
-					Vector3 curPos = transform.position;
-
-					HexCell curCell = HexMap.hexMap.GetHexCellFromWorldPos(curPos);
-					HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharPos);
-
 					// Highlight the place that the character is able to move
 					List<HexCell> allPossibleDest = new List<HexCell>();
 					if (needToCalAllPossibleDestinations) {
@@ -58,16 +62,14 @@ public class AIEnemyCharacterController : MyCharacterController {
 					curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
 				} else {
 					// If no action points available, for now just end the turn
-					//curCharactor.SwitchActionStateTo(ECharacterActionState.InActive);
-					//curCharactor.EndThisTurn();
 					curCharactor.hasFinishedThisTurn = true;
 				}
 
 				break;
 			case ECharacterActionState.Moving:
-				if (charNavigation.IsPathComplete()) {
-					curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
-					Debug.Log("No active valid path, set character back to Idle");
+				// If path is complete or we can attack directly
+				if (charNavigation.IsPathComplete() || curCharactor.IsTargetAttackable(curTargetCell)) {
+					curCharactor.SwitchActionStateTo(ECharacterActionState.Attacking);
 				}
 				else {
 					// If we are not moving, command the moving coroutine
@@ -75,6 +77,11 @@ public class AIEnemyCharacterController : MyCharacterController {
 						StartCoroutine(MovingCoroutine());
 					}
 				}
+				break;
+			case ECharacterActionState.Attacking:
+				// (TODO): perform attacking action
+				Debug.Log("AI Enemy attacking!!!!");
+				curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
 				break;
 			default:
 				break;
@@ -88,7 +95,8 @@ public class AIEnemyCharacterController : MyCharacterController {
 			HexCell nextCell = charNavigation.GetNextCellInPath();
 			int nextMoveCost = MapManager.GetTileCostFromHexCell(nextCell);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
-			if (curCharactor.actionPoints >= nextMoveCost) {
+			HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharGO.transform.position);
+			if (curCharactor.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
 				charNavigation.MoveOneStep(true);
 				curCharactor.actionPoints = curCharactor.actionPoints - nextMoveCost;
 				yield return new WaitForSeconds(curCharactor.movingIntervalSec);
@@ -96,7 +104,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			}
 		}
-		curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
+		curCharactor.SwitchActionStateTo(ECharacterActionState.Attacking);
 		isMoving = false;
 	}
 }

@@ -319,7 +319,6 @@ public class HexMap {
 	}
 
 	public List<HexCell> AllCellsWithinRadius(HexCell centerCell, int radius) {
-		Debug.Log("center cell: " + centerCell.hexCellPos);
 		List<HexCell> allResultCells = new List<HexCell>();
 
 		for (int i = -radius; i <= radius; i++) {

@@ -61,8 +61,7 @@ public class MyCharacterController : MonoBehaviour {
 
 	protected void HighlightAttackRangeCells(bool on) {
 		// Highlight the attacking range
-		List<HexCell> allAttackableCells = new List<HexCell>();
-		allAttackableCells = HexMap.hexMap.AllCellsWithinRadius(curCharactor.charCurHexCell, curCharactor.attackRangeRadius);
+		List<HexCell> allAttackableCells = curCharactor.GetAllAttackableCells();
 		if (on) {
 			MapManager.SetHighlightCells(allAttackableCells, ETileHighlightType.AttackRange);
 		} else {
