@@ -75,6 +75,7 @@ public class Character : MonoBehaviour {
 	private HexCell _charCurHexCell;
 	public HexCell charCurHexCell {
 		get {
+			_charCurHexCell = HexMap.hexMap.GetHexCellFromWorldPos(transform.position);
 			return _charCurHexCell;
 		}
 	}
