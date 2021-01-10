@@ -798,6 +798,7 @@ MonoBehaviour:
   _actionPoints: 4
   _maxActionPoints: 4
   hasFinishedThisTurn: 0
+  hasStartedThisTurn: 0
   attackRangeRadius: 1
 --- !u!1 &1683990672
 GameObject:
@@ -4398,4 +4399,5 @@ MonoBehaviour:
   _actionPoints: 4
   _maxActionPoints: 4
   hasFinishedThisTurn: 0
+  hasStartedThisTurn: 0
   attackRangeRadius: 1

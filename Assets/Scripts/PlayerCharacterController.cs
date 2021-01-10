@@ -54,11 +54,6 @@ public class PlayerCharacterController : MyCharacterController {
 					allPossibleDest = HexMap.hexMap.AllPossibleDestinationCells(charCurCell, curCharactor.actionPoints);
 					needToCalAllPossibleDestinations = false;
 					MapManager.SetHighlightCells(allPossibleDest, ETileHighlightType.MoveRange);
-
-					//// Highlight the attacking range
-					//List<HexCell> allAttackableCells = new List<HexCell>();
-					//allAttackableCells = HexMap.hexMap.AllCellsWithinRadius(charCurCell, curCharactor.attackRangeRadius);
-					//MapManager.SetHighlightCells(allAttackableCells, ETileHighlightType.AttackRange);
 				}
 
 

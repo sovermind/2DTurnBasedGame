@@ -43,7 +43,6 @@ public class AIEnemyCharacterController : MyCharacterController {
 
 		switch (curCharactor.characterCurrentActionState) {
 			case ECharacterActionState.InActive:
-				curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
 				break;
 			case ECharacterActionState.Idle:
 				// If still have action points, move towards it's target
@@ -81,7 +80,10 @@ public class AIEnemyCharacterController : MyCharacterController {
 			case ECharacterActionState.Attacking:
 				// (TODO): perform attacking action
 				Debug.Log("AI Enemy attacking!!!!");
-				curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
+
+				// When finish attack, enemy finishes this turn
+				curCharactor.SwitchActionStateTo(ECharacterActionState.InActive);
+				curCharactor.hasFinishedThisTurn = true;
 				break;
 			default:
 				break;
@@ -94,9 +96,12 @@ public class AIEnemyCharacterController : MyCharacterController {
 		while (!charNavigation.IsPathComplete()) {
 			HexCell nextCell = charNavigation.GetNextCellInPath();
 			int nextMoveCost = MapManager.GetTileCostFromHexCell(nextCell);
+			Debug.Log("next cell: " + nextCell.hexCellPos);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
 			HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharGO.transform.position);
+			Debug.Log("curTargetCell: " + curTargetCell.hexCellPos);
 			if (curCharactor.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
+				Debug.Log("Move one step forward");
 				charNavigation.MoveOneStep(true);
 				curCharactor.actionPoints = curCharactor.actionPoints - nextMoveCost;
 				yield return new WaitForSeconds(curCharactor.movingIntervalSec);
@@ -104,6 +109,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			}
 		}
+		// Heres the problem!!!!
 		curCharactor.SwitchActionStateTo(ECharacterActionState.Attacking);
 		isMoving = false;
 	}

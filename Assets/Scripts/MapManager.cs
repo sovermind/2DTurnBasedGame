@@ -1,5 +1,6 @@
 ﻿#define DEBUG_MAP_OUTPUTS
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -120,7 +121,7 @@ public class MapManager : MonoBehaviour{
 
 		// If the cell quested is outof map
 		if (!HexMap.hexMap.IsValidHexCellInMap(cell)) {
-			return 0;
+			return Int32.MaxValue;
 		}
 
 		// Get the world pos of the hexcell

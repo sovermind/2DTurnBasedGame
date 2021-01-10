@@ -66,6 +66,8 @@ public class Character : MonoBehaviour {
 
 	public bool hasFinishedThisTurn;
 
+	public bool hasStartedThisTurn;
+
 	public int attackRangeRadius;
 
 	private Animator charAnimator;
@@ -83,6 +85,7 @@ public class Character : MonoBehaviour {
 		_characterCurrentActionState = ECharacterActionState.InActive;
 		charAnimator = GetComponent<Animator>();
 		hasFinishedThisTurn = false;
+		hasStartedThisTurn = false;
 		_actionPoints = _maxActionPoints;
 		_charCurHexCell = new HexCell(0, 0, 0);
 	}
@@ -120,6 +123,10 @@ public class Character : MonoBehaviour {
 	/// <param name="newState"></param>
 	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
+		Debug.Log("Switch action state from: " + _characterCurrentActionState + " to: " + newState);
+		if (_characterCurrentActionState == ECharacterActionState.InActive && newState != ECharacterActionState.InActive) {
+			hasStartedThisTurn = true;
+		}
 		_characterCurrentActionState = newState;
 		return true;
 	}
@@ -131,6 +138,7 @@ public class Character : MonoBehaviour {
 	/// </summary>
 	public void EndThisTurn() {
 		hasFinishedThisTurn = false;
+		hasStartedThisTurn = false;
 		SwitchActionStateTo(ECharacterActionState.InActive);
 		// restore action points
 		_actionPoints = maxActionPoints;
@@ -158,7 +166,10 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool IsTargetAttackable(HexCell targetCell) {
 		List<HexCell> allAttackableCells = GetAllAttackableCells();
+		// This is always the same????
+		Debug.Log("cur char hex cell: " + charCurHexCell.hexCellPos);
 		foreach (HexCell curCell in allAttackableCells) {
+			Debug.Log("@@@@@@@@@@@@@@@ curCell: " + curCell.hexCellPos + ", targetCell: " + targetCell.hexCellPos);
 			if (curCell.Equals(targetCell)) {
 				return true;
 			}

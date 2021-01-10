@@ -83,17 +83,7 @@ public class GameManager : MonoBehaviour {
 	void Update() {
 		switch (_gameState) {
 			case EGameState.AIEnemyTurn:
-				bool allEnemyFinishThisTurn = true;
-				foreach (GameObject AIEnemy in AIEnemyCharacters) {
-					Character curEnemyCharacter = AIEnemy.GetComponent<Character>();
-					if (!curEnemyCharacter.hasFinishedThisTurn) {
-						allEnemyFinishThisTurn = false;
-						break;
-					}
-				}
-				if (allEnemyFinishThisTurn) {
-					SetGameState(EGameState.PlayerTurn);
-				}
+				IssueCommandToEnemies();
 				break;
 			case EGameState.PlayerTurn:
 				break;
@@ -102,9 +92,38 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Check current all enemies's states, make sure only one enemy is active each time
+	/// When all enemies finished action, end the current enemy turn, switch to player's turn
+	/// </summary>
+	public void IssueCommandToEnemies() {
+		List<Character> waitForActiveEnemies = new List<Character>();
+		foreach (GameObject AIEnemy in AIEnemyCharacters) {
+			Character curEnemyCharacter = AIEnemy.GetComponent<Character>();
+			if (!curEnemyCharacter.hasFinishedThisTurn) {
+				waitForActiveEnemies.Add(curEnemyCharacter);
+			}
+		}
+
+		if (waitForActiveEnemies.Count == 0) {
+			SetGameState(EGameState.PlayerTurn);
+		} else {
+			bool startNextEnemy = true;
+			// Now all the waiting enemies should has not finish this turn. So if someone has started, meaning it's doing some action
+			// wait for all waiting enemies not start this turn, then send one of them to be active
+			foreach (Character curWaitEnemy in waitForActiveEnemies) {
+				if (curWaitEnemy.hasStartedThisTurn) {
+					startNextEnemy = false;
+				}
+			}
+			if (startNextEnemy) {
+				waitForActiveEnemies[0].SwitchActionStateTo(ECharacterActionState.Idle);
+			}
+		}
+	}
+
 	public void StartNextTurnButtonListener() {
 		if (_gameState == EGameState.PlayerTurn) {
-			Debug.Log("switch to enemy turn");
 			SetGameState(EGameState.AIEnemyTurn);
 			// Need to reset all variables that player and enemy have
 		}
