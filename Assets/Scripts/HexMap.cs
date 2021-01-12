@@ -180,7 +180,6 @@ public class HexMap {
 		mapHeightInCell = heightInCell;
 		mapWidthInCell = widthInCell;
 		hexCellSideLength = sideLength;
-		Debug.Log("side length: " + hexCellSideLength);
 
 		for (int row = 0; row < heightInCell; row++) {
 			for (int col = 0; col < widthInCell; col++) {
@@ -315,6 +314,7 @@ public class HexMap {
 
 		HexCell delta = a.Subtract(b);
 		Vector3Int deltaPos = delta.hexCellPos;
+		//Debug.Log("manhattan dist from " + a.hexCellPos + " to " + b.hexCellPos + ": " + (int)((Mathf.Abs(deltaPos.x) + Mathf.Abs(deltaPos.y) + Mathf.Abs(deltaPos.z)) / 2));
 		return (int)((Mathf.Abs(deltaPos.x) + Mathf.Abs(deltaPos.y) + Mathf.Abs(deltaPos.z)) / 2);
 	}
 
@@ -346,11 +346,20 @@ public class HexMap {
 			for (int j = Math.Max(-availableAP, -i - availableAP); j <= Math.Min(availableAP, -i + availableAP); j++) {
 				HexCell translateCell = new HexCell(i, j);
 				HexCell testCell = translateCell.Add(curCell);
+
 				if (!IsValidHexCellInMap(testCell)) {
 					continue;
 				}
 				int totalPathCost = Int32.MaxValue;
 				navHelper.ComputePath(curCell, testCell, ref totalPathCost);
+				//HexCell tmpCell = new HexCell(6, 7, -13);
+				//if (testCell.Equals(tmpCell)) {
+				//	Debug.Log("try to compute path to " + tmpCell.hexCellPos + " and path cost: " + totalPathCost);
+				//	List<HexCell> curPath = navHelper.GetCurFullPath();
+				//	for (int jj = 0; jj < curPath.Count; jj++) {
+				//		Debug.Log("path points " + jj + ": " + curPath[jj].hexCellPos);
+				//	}
+				//}
 				if (totalPathCost <= availableAP) {
 					allReachableCells.Add(testCell);
 					//Debug.Log("can reach: " + mapStorage[i][j].hexCellPos);

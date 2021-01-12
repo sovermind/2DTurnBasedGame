@@ -40,7 +40,7 @@ internal class AStarCell : System.IEquatable<AStarCell> {
 /// Using the help of binery heap
 /// </summary>
 internal class AStarCellPQ {
-	List<AStarCell> storage = new List<AStarCell>();
+	public List<AStarCell> storage = new List<AStarCell>();
 
 	/// <summary>
 	/// Insert a cell into the PQ, sorted with least fCost
@@ -160,6 +160,7 @@ internal class AStarCellPQ {
 		while (idx > 0 && storage[parentIdx].fCost > storage[idx].fCost) {
 			Swap(parentIdx, idx);
 			idx = parentIdx;
+			parentIdx = GetParent(idx);
 		}
 	}
 
@@ -230,6 +231,10 @@ public class NavigationManager{
 
 		pathCost = GetTotalPathCost();
 		return true;
+	}
+
+	public List<HexCell> GetCurFullPath() {
+		return path;
 	}
 
 	/// <summary>
@@ -322,7 +327,6 @@ public class NavigationManager{
 	/// <param name="targetCell"></param>
 	/// <returns></returns>
 	private List<HexCell> AStarSearth(AStarCell startCell, AStarCell targetCell) {
-		//Debug.Log("a star search from: " + startCell.mapHexCell.hexCellPos + " to: " + targetCell.mapHexCell.hexCellPos);
 		openList.Clear();
 		closeList.Clear();
 
@@ -335,7 +339,6 @@ public class NavigationManager{
 			AStarCell curLeastCostCell = openList.Pop();
 			if (curLeastCostCell.Equals(targetCell)) {
 				// We have found the destination cell, compute the path and exit
-				//Debug.Log("find path!!! target cell: " + targetCell.mapHexCell.hexCellPos);
 				return BackTracePath(curLeastCostCell);
 			}
 
@@ -345,7 +348,6 @@ public class NavigationManager{
 
 				// Expand all neighbors within the map
 				List<AStarCell> allNeighbors = GenerateAllNeighbors(curLeastCostCell);
-				//Debug.Log("all neighbors count: " + allNeighbors.Count);
 
 				for (int i = 0; i < allNeighbors.Count; i++) {
 					AStarCell curNeighCell = allNeighbors[i];
@@ -370,13 +372,13 @@ public class NavigationManager{
 	/// <summary>
 	/// This function calculates path cost between two cells, will be used to update g cost of AStarCell
 	/// TODO: The cost should depend on MapCell type or if there are enemies present on cell
-	/// right now it return 1. 
+	/// right now it return 0. 
 	/// </summary>
 	/// <param name="fromCell"></param>
 	/// <param name="toCell"></param>
 	/// <returns></returns>
 	private int CalculatePathCostBetweenCells(AStarCell fromCell, AStarCell toCell) {
-		return 2;
+		return 0;
 	}
 
 	/// <summary>

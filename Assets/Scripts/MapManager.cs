@@ -28,6 +28,9 @@ public struct TileMapData {
 [RequireComponent(typeof(List<TileMapDataSO>))]
 public class MapManager : MonoBehaviour{
 	[SerializeField]
+	public bool navigationManagerDebug;
+
+	[SerializeField]
 	private List<TileMapDataSO> tileMapDataHelper = new List<TileMapDataSO>();
 
 	public static List<TileMapDataSO> allTileMapData;  // Contains all tilemaps' data including cost, priority, etc.
@@ -152,6 +155,19 @@ public class MapManager : MonoBehaviour{
 			}
 		}
 #endif
+
+		if (navigationManagerDebug) {
+			NavigationManager navDebugger = new NavigationManager();
+			HexCell startCell = new HexCell(1, 7, -8);
+			HexCell targetCell = new HexCell(6, 7, -13);
+			int pathCost = 0;
+			navDebugger.ComputePath(startCell, targetCell, ref pathCost);
+			List<HexCell> completePath = navDebugger.GetCurFullPath();
+			SetHighlightCells(completePath, ETileHighlightType.MoveRange);
+
+			navigationManagerDebug = false;
+		}
+
 		foreach (KeyValuePair<Vector3Int, TileMapData> entry in tileMapDataDict) {
 			HighlightThisCell(entry.Key, entry.Value.highlightType);
 		}

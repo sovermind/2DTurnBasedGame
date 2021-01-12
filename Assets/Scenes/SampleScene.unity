@@ -652,6 +652,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80972055483debc48b8cec9449e3c18d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  navigationManagerDebug: 0
   tileMapDataHelper:
   - {fileID: 11400000, guid: 477bcb338c9008247abe1d0938656c45, type: 2}
   - {fileID: 11400000, guid: 9d85401b3f711a742a8ccb4bea4a7088, type: 2}

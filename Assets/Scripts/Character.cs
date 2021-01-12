@@ -167,10 +167,7 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool IsTargetAttackable(HexCell targetCell) {
 		List<HexCell> allAttackableCells = GetAllAttackableCells();
-		// This is always the same????
-		Debug.Log("cur char hex cell: " + charCurHexCell.hexCellPos);
 		foreach (HexCell curCell in allAttackableCells) {
-			Debug.Log("@@@@@@@@@@@@@@@ curCell: " + curCell.hexCellPos + ", targetCell: " + targetCell.hexCellPos);
 			if (curCell.Equals(targetCell)) {
 				return true;
 			}

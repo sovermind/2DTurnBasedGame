@@ -99,7 +99,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 			Debug.Log("next cell: " + nextCell.hexCellPos);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
 			HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharGO.transform.position);
-			Debug.Log("curTargetCell: " + curTargetCell.hexCellPos);
+			Debug.Log("curTargetCell: " + curTargetCell.hexCellPos + ", cur char cell: " + curCharactor.charCurHexCell.hexCellPos);
 			if (curCharactor.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
 				Debug.Log("Move one step forward");
 				charNavigation.MoveOneStep(true);
