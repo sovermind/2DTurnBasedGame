@@ -15,6 +15,7 @@ public enum ECharacterActionState {
 
 public class Character : MonoBehaviour {
 	private float waitForIdleTimeSec = 0.5f;
+	private float waitForAttackAnimationTimeSec = 1.0f;
 
 	[SerializeField]
 	private ECharacterActionState _characterCurrentActionState;    // Current state of the character
@@ -64,6 +65,20 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private bool _hasStartBasicAttack;
+	public bool hasStartBasicAttack {
+		get {
+			return _hasStartBasicAttack;
+		}
+	}
+
+	private bool _basicAttackDone;
+	public bool basicAttackDone {
+		get {
+			return _basicAttackDone;
+		}
+	}
+
 	public bool hasFinishedThisTurn;
 
 	public bool hasStartedThisTurn;
@@ -87,6 +102,8 @@ public class Character : MonoBehaviour {
 		charAnimator = GetComponent<Animator>();
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
+		_hasStartBasicAttack = false;
+		_basicAttackDone = false;
 		_actionPoints = _maxActionPoints;
 		_charCurHexCell = new HexCell(0, 0, 0);
 	}
@@ -98,6 +115,7 @@ public class Character : MonoBehaviour {
 		switch (_characterCurrentActionState) {
 			case ECharacterActionState.InActive:
 				charAnimator.SetBool("IsWalking", false);
+				charAnimator.SetBool("IsAttacking", false);
 				StartCoroutine(WaitForIdleThenInactive());
 				break;
 			case ECharacterActionState.Idle:
@@ -107,14 +125,12 @@ public class Character : MonoBehaviour {
 			case ECharacterActionState.Moving:
 				charAnimator.SetBool("IsWalking", true);
 				break;
+			case ECharacterActionState.Attacking:
+				//BasicAttack();
+				break;
 			default:
 				break;
 		}
-	}
-
-	IEnumerator WaitForIdleThenInactive() {
-		yield return new WaitForSeconds(waitForIdleTimeSec);
-		charAnimator.enabled = false;
 	}
 
 	/// <summary>
@@ -140,6 +156,8 @@ public class Character : MonoBehaviour {
 	public void EndThisTurn() {
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
+		_hasStartBasicAttack = false;
+		_basicAttackDone = false;
 		SwitchActionStateTo(ECharacterActionState.InActive);
 		// restore action points
 		_actionPoints = maxActionPoints;
@@ -173,5 +191,23 @@ public class Character : MonoBehaviour {
 			}
 		}
 		return false;
+	}
+
+	public void BasicAttack() {
+		_hasStartBasicAttack = true;
+		charAnimator.SetBool("IsWalking", false);
+		charAnimator.SetBool("IsAttacking", true);
+		Debug.Log("perform basic attack");
+		StartCoroutine(WaitForBasicAttackToFinish());
+	}
+
+	IEnumerator WaitForIdleThenInactive() {
+		yield return new WaitForSeconds(waitForIdleTimeSec);
+		charAnimator.enabled = false;
+	}
+
+	IEnumerator WaitForBasicAttackToFinish() {
+		yield return new WaitForSeconds(waitForAttackAnimationTimeSec);
+		_basicAttackDone = true;
 	}
 }

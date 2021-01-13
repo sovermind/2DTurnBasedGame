@@ -78,12 +78,24 @@ public class AIEnemyCharacterController : MyCharacterController {
 				}
 				break;
 			case ECharacterActionState.Attacking:
-				// (TODO): perform attacking action
-				Debug.Log("AI Enemy attacking!!!!");
+				if (curCharactor.IsTargetAttackable(curTargetCell)) {
+					// (TODO): Now only have basic attack. Later can add logic to decide if use skill/heal/etc.
+					if (!curCharactor.hasStartBasicAttack) {
+						curCharactor.BasicAttack();
+					}
 
-				// When finish attack, enemy finishes this turn
-				curCharactor.SwitchActionStateTo(ECharacterActionState.InActive);
-				curCharactor.hasFinishedThisTurn = true;
+					if (curCharactor.basicAttackDone) {
+						// When finish attack, enemy finishes this turn
+						curCharactor.SwitchActionStateTo(ECharacterActionState.InActive);
+						curCharactor.hasFinishedThisTurn = true;
+					}
+
+				} else {
+					// If not within attack range, directly end the attacking state and switch to next (currently in active)
+					curCharactor.SwitchActionStateTo(ECharacterActionState.InActive);
+					curCharactor.hasFinishedThisTurn = true;
+				}
+				
 				break;
 			default:
 				break;
@@ -96,7 +108,6 @@ public class AIEnemyCharacterController : MyCharacterController {
 		while (!charNavigation.IsPathComplete()) {
 			HexCell nextCell = charNavigation.GetNextCellInPath();
 			int nextMoveCost = MapManager.GetTileCostFromHexCell(nextCell);
-			Debug.Log("next cell: " + nextCell.hexCellPos);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
 			HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharGO.transform.position);
 			Debug.Log("curTargetCell: " + curTargetCell.hexCellPos + ", cur char cell: " + curCharactor.charCurHexCell.hexCellPos);
@@ -109,7 +120,6 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			}
 		}
-		// Heres the problem!!!!
 		curCharactor.SwitchActionStateTo(ECharacterActionState.Attacking);
 		isMoving = false;
 	}
