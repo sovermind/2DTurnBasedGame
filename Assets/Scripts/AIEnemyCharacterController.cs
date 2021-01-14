@@ -46,7 +46,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			case ECharacterActionState.Idle:
 				// If still have action points, move towards it's target
-				if (curCharactor.actionPoints > 0) {
+				if (curCharactor.actionPoints > 0 && !curCharactor.attackDone) {
 					// Highlight the place that the character is able to move
 					List<HexCell> allPossibleDest = new List<HexCell>();
 					if (needToCalAllPossibleDestinations) {
@@ -80,14 +80,13 @@ public class AIEnemyCharacterController : MyCharacterController {
 			case ECharacterActionState.Attacking:
 				if (curCharactor.IsTargetAttackable(curTargetCell)) {
 					// (TODO): Now only have basic attack. Later can add logic to decide if use skill/heal/etc.
-					if (!curCharactor.hasStartBasicAttack) {
-						curCharactor.BasicAttack();
+					if (!curCharactor.hasStartAttack) {
+						curCharactor.PerformAttack();
 					}
 
-					if (curCharactor.basicAttackDone) {
-						// When finish attack, enemy finishes this turn
-						curCharactor.SwitchActionStateTo(ECharacterActionState.InActive);
-						curCharactor.hasFinishedThisTurn = true;
+					if (curCharactor.attackDone) {
+						// When finish attack, switch back to Idle
+						curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
 					}
 
 				} else {

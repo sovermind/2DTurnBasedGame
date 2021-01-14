@@ -65,17 +65,17 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-	private bool _hasStartBasicAttack;
-	public bool hasStartBasicAttack {
+	private bool _hasStartAttack;
+	public bool hasStartAttack {
 		get {
-			return _hasStartBasicAttack;
+			return _hasStartAttack;
 		}
 	}
 
-	private bool _basicAttackDone;
-	public bool basicAttackDone {
+	private bool _attackDone;
+	public bool attackDone {
 		get {
-			return _basicAttackDone;
+			return _attackDone;
 		}
 	}
 
@@ -102,8 +102,8 @@ public class Character : MonoBehaviour {
 		charAnimator = GetComponent<Animator>();
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
-		_hasStartBasicAttack = false;
-		_basicAttackDone = false;
+		_hasStartAttack = false;
+		_attackDone = false;
 		_actionPoints = _maxActionPoints;
 		_charCurHexCell = new HexCell(0, 0, 0);
 	}
@@ -111,26 +111,6 @@ public class Character : MonoBehaviour {
 	// Update is called once per frame
 	void Update() {
 		_charCurHexCell = HexMap.hexMap.GetHexCellFromWorldPos(transform.position);
-
-		switch (_characterCurrentActionState) {
-			case ECharacterActionState.InActive:
-				charAnimator.SetBool("IsWalking", false);
-				charAnimator.SetBool("IsAttacking", false);
-				StartCoroutine(WaitForIdleThenInactive());
-				break;
-			case ECharacterActionState.Idle:
-				charAnimator.enabled = true;
-				charAnimator.SetBool("IsWalking", false);
-				break;
-			case ECharacterActionState.Moving:
-				charAnimator.SetBool("IsWalking", true);
-				break;
-			case ECharacterActionState.Attacking:
-				//BasicAttack();
-				break;
-			default:
-				break;
-		}
 	}
 
 	/// <summary>
@@ -141,10 +121,86 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
 		Debug.Log("Switch action state from: " + _characterCurrentActionState + " to: " + newState);
-		if (_characterCurrentActionState == ECharacterActionState.InActive && newState != ECharacterActionState.InActive) {
-			hasStartedThisTurn = true;
+		//if (_characterCurrentActionState == ECharacterActionState.InActive && newState != ECharacterActionState.InActive) {
+		//	hasStartedThisTurn = true;
+		//}
+
+		// State transition should depend on the current state
+		switch (_characterCurrentActionState) {
+			case ECharacterActionState.InActive:
+				switch (newState) {
+					case ECharacterActionState.InActive:
+						break;
+					case ECharacterActionState.Idle:
+						charAnimator.SetBool("IsInActive", false);
+						charAnimator.SetBool("IsWalking", false);
+						hasStartedThisTurn = true;
+						break;
+					default:
+						Debug.LogWarning("Invalid state transition from Inactive to " + newState);
+						break;
+				}
+				break;
+			case ECharacterActionState.Idle:
+				switch (newState) {
+					case ECharacterActionState.InActive:
+						charAnimator.SetBool("IsInActive", true);
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Idle:
+						break;
+					case ECharacterActionState.Moving:
+						charAnimator.SetBool("IsInActive", false);
+						charAnimator.SetBool("IsWalking", true);
+						break;
+					case ECharacterActionState.Attacking:
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					default:
+						break;
+				}
+				break;
+			case ECharacterActionState.Moving:
+				switch (newState) {
+					case ECharacterActionState.InActive:
+						charAnimator.SetBool("IsInActive", true);
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Idle:
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Moving:
+						break;
+					case ECharacterActionState.Attacking:
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					default:
+						break;
+				}
+				break;
+			case ECharacterActionState.Attacking:
+				switch (newState) {
+					case ECharacterActionState.InActive:
+						charAnimator.SetBool("IsInActive", true);
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Idle:
+						charAnimator.SetBool("IsInActive", false);
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Attacking:
+						break;
+					default:
+						Debug.LogWarning("Invalid state transition from Attacking to " + newState);
+						break;
+				}
+				break;
+			default:
+				break;
 		}
+
 		_characterCurrentActionState = newState;
+
 		return true;
 	}
 
@@ -156,8 +212,8 @@ public class Character : MonoBehaviour {
 	public void EndThisTurn() {
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
-		_hasStartBasicAttack = false;
-		_basicAttackDone = false;
+		_hasStartAttack = false;
+		_attackDone = false;
 		SwitchActionStateTo(ECharacterActionState.InActive);
 		// restore action points
 		_actionPoints = maxActionPoints;
@@ -193,21 +249,24 @@ public class Character : MonoBehaviour {
 		return false;
 	}
 
-	public void BasicAttack() {
-		_hasStartBasicAttack = true;
-		charAnimator.SetBool("IsWalking", false);
-		charAnimator.SetBool("IsAttacking", true);
+	/// <summary>
+	/// Perform the attack option. Currently only the basic attack. Later should has an input parameter with attack type
+	/// The character controller should tell the character which attack to perform
+	/// </summary>
+	public void PerformAttack() {
+		_hasStartAttack = true;
+		charAnimator.SetTrigger("BasicAttack");
+
 		Debug.Log("perform basic attack");
 		StartCoroutine(WaitForBasicAttackToFinish());
 	}
 
 	IEnumerator WaitForIdleThenInactive() {
 		yield return new WaitForSeconds(waitForIdleTimeSec);
-		charAnimator.enabled = false;
 	}
 
 	IEnumerator WaitForBasicAttackToFinish() {
 		yield return new WaitForSeconds(waitForAttackAnimationTimeSec);
-		_basicAttackDone = true;
+		_attackDone = true;
 	}
 }

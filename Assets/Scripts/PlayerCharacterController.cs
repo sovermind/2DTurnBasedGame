@@ -6,10 +6,14 @@ using System;
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Character))]
 public class PlayerCharacterController : MyCharacterController {
+	GameObject[] AllEnemyCharacters;
+	List<HexCell> allPossibleDest;
 
 	// Start is called before the first frame update
 	protected override void Start() {
 		base.Start();
+		AllEnemyCharacters = GameObject.FindGameObjectsWithTag("Enemy");
+		allPossibleDest = new List<HexCell>();
 	}
 
     // Update is called once per frame
@@ -49,7 +53,6 @@ public class PlayerCharacterController : MyCharacterController {
 				break;
 			case ECharacterActionState.Idle:
 				// Highlight the place that the character is able to move
-				List<HexCell> allPossibleDest = new List<HexCell>();
 				if (needToCalAllPossibleDestinations) {
 					allPossibleDest = HexMap.hexMap.AllPossibleDestinationCells(charCurCell, curCharactor.actionPoints);
 					needToCalAllPossibleDestinations = false;
@@ -62,15 +65,36 @@ public class PlayerCharacterController : MyCharacterController {
 				// set up the destination point and send to navigation manager
 				if (leftMouseClicked) {
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
-					int totalPathCost = Int32.MaxValue;
-					charNavigation.ComputePath(charCurCell, clickCell, ref totalPathCost);
-					Debug.Log("MyCharacterController: cur path total cost: " + totalPathCost + ", cur ap: " + curCharactor.actionPoints);
-					// If the current action points is still sufficient for the total cost of path, move to place
-					if (curCharactor.actionPoints >= totalPathCost) {
-						curCharactor.actionPoints = curCharactor.actionPoints - totalPathCost;
-						needToCalAllPossibleDestinations = true;
-						curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
+					// Check if the click cell is a valid cell
+					bool isClickCellValid = false;
+					foreach (HexCell destCell in allPossibleDest) {
+						isClickCellValid = (destCell.Equals(clickCell));
+						if (isClickCellValid) {
+							break;
+						}
 					}
+					// Check if the click cell has enemy character
+					foreach (GameObject enemyGO in AllEnemyCharacters) {
+						Vector3 curEnemyPos = enemyGO.transform.position;
+						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
+						if (curEnemyCell.Equals(clickCell)) {
+							isClickCellValid = false;
+							break;
+						}
+					}
+
+					if (isClickCellValid) {
+						int totalPathCost = Int32.MaxValue;
+						charNavigation.ComputePath(charCurCell, clickCell, ref totalPathCost);
+						Debug.Log("MyCharacterController: cur path total cost: " + totalPathCost + ", cur ap: " + curCharactor.actionPoints);
+						// If the current action points is still sufficient for the total cost of path, move to place
+						if (curCharactor.actionPoints >= totalPathCost) {
+							curCharactor.actionPoints = curCharactor.actionPoints - totalPathCost;
+							needToCalAllPossibleDestinations = true;
+							curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
+						}
+					}
+					
 				}
 
 				break;
@@ -84,6 +108,8 @@ public class PlayerCharacterController : MyCharacterController {
 						StartCoroutine(MovingCoroutine());
 					}
 				}
+				break;
+			case ECharacterActionState.Attacking:
 				break;
 			default:
 				break;
