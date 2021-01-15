@@ -61,29 +61,35 @@ public class PlayerCharacterController : MyCharacterController {
 
 
 
-				// If left mouse clicked, we will move to position if possible
-				// set up the destination point and send to navigation manager
+				// left mouse click actions: 
+				// 1. move to cell based on remaining AP
+				// 2. If click on enemy, show enemy information
 				if (leftMouseClicked) {
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
-					// Check if the click cell is a valid cell
-					bool isClickCellValid = false;
+					// Check if the click cell is a cell that char can move to
+					bool isClickCellMovable = false;
 					foreach (HexCell destCell in allPossibleDest) {
-						isClickCellValid = (destCell.Equals(clickCell));
-						if (isClickCellValid) {
+						isClickCellMovable = (destCell.Equals(clickCell));
+						if (isClickCellMovable) {
 							break;
 						}
 					}
+
+					bool isClickCellEnemy = false;
 					// Check if the click cell has enemy character
 					foreach (GameObject enemyGO in AllEnemyCharacters) {
 						Vector3 curEnemyPos = enemyGO.transform.position;
 						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
 						if (curEnemyCell.Equals(clickCell)) {
-							isClickCellValid = false;
+							isClickCellEnemy = true;
 							break;
 						}
 					}
 
-					if (isClickCellValid) {
+					if (isClickCellEnemy) {
+						// TODO: Show enemy information
+					} else if (isClickCellMovable) {
+						// If player can move there and it's not occupied by enemy, switch to moving state and move there
 						int totalPathCost = Int32.MaxValue;
 						charNavigation.ComputePath(charCurCell, clickCell, ref totalPathCost);
 						Debug.Log("MyCharacterController: cur path total cost: " + totalPathCost + ", cur ap: " + curCharactor.actionPoints);
@@ -94,7 +100,6 @@ public class PlayerCharacterController : MyCharacterController {
 							curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
 						}
 					}
-					
 				}
 
 				break;

@@ -6,6 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Character))]
 public class AIEnemyCharacterController : MyCharacterController {
+	// Use this variable to control how long it will wait until switch to new state
+	// Primarily used for the animation to have time to play
+	[SerializeField]
+	private float waitSecsThenTransit = 0.3f;
 
 	GameObject[] PlayerControlCharacters;
 	GameObject curTargetCharGO;
@@ -58,7 +62,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 					// Get a path from cur pos to target pos
 					int totalPathCost = Int32.MaxValue;
 					charNavigation.ComputePath(curCell, curTargetCell, ref totalPathCost);
-					curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
+					StartCoroutine(WaitSecondsThenTransitTo(waitSecsThenTransit, ECharacterActionState.Moving));
 				} else {
 					// If no action points available, for now just end the turn
 					curCharactor.hasFinishedThisTurn = true;
@@ -109,9 +113,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 			int nextMoveCost = MapManager.GetTileCostFromHexCell(nextCell);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
 			HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharGO.transform.position);
-			Debug.Log("curTargetCell: " + curTargetCell.hexCellPos + ", cur char cell: " + curCharactor.charCurHexCell.hexCellPos);
 			if (curCharactor.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
-				Debug.Log("Move one step forward");
 				charNavigation.MoveOneStep(true);
 				curCharactor.actionPoints = curCharactor.actionPoints - nextMoveCost;
 				yield return new WaitForSeconds(curCharactor.movingIntervalSec);

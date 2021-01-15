@@ -69,4 +69,16 @@ public class MyCharacterController : MonoBehaviour {
 		}
 		
 	}
+
+	/// <summary>
+	/// Use this Coroutine method to wait for some time then switch to new state
+	/// Primarily because animation need time to play
+	/// </summary>
+	/// <param name="tSec"></param>
+	/// <param name="newState"></param>
+	/// <returns></returns>
+	protected IEnumerator WaitSecondsThenTransitTo(float tSec, ECharacterActionState newState) {
+		yield return new WaitForSeconds(tSec);
+		curCharactor.SwitchActionStateTo(newState);
+	}
 }

@@ -14,7 +14,6 @@ public enum ECharacterActionState {
 }
 
 public class Character : MonoBehaviour {
-	private float waitForIdleTimeSec = 0.5f;
 	private float waitForAttackAnimationTimeSec = 1.0f;
 
 	[SerializeField]
@@ -106,6 +105,10 @@ public class Character : MonoBehaviour {
 		_attackDone = false;
 		_actionPoints = _maxActionPoints;
 		_charCurHexCell = new HexCell(0, 0, 0);
+
+		// On start animation should be inactive
+		charAnimator.SetBool("IsInActive", true);
+		charAnimator.SetBool("IsWalking", false);
 	}
 
 	// Update is called once per frame
@@ -259,10 +262,6 @@ public class Character : MonoBehaviour {
 
 		Debug.Log("perform basic attack");
 		StartCoroutine(WaitForBasicAttackToFinish());
-	}
-
-	IEnumerator WaitForIdleThenInactive() {
-		yield return new WaitForSeconds(waitForIdleTimeSec);
 	}
 
 	IEnumerator WaitForBasicAttackToFinish() {

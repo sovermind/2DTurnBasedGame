@@ -11,10 +11,15 @@ public enum EGameState {
 public class GameManager : MonoBehaviour {
 	private static GameManager _instance;
 
+	private Camera mainCam;
+	private Grid mapGrid;
+	protected GameObject mapGridGO;
+
 	GameObject[] PlayerControlCharacters;
 	GameObject[] AIEnemyCharacters;
 
 	public Button nextTurnButton;
+	public Button attackButton;
 
 
 	[SerializeField]
@@ -72,12 +77,21 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void Start() {
-		//_gameState = EGameState.AIEnemyTurn;
+		mainCam = Camera.main;
+		mapGridGO = GameObject.Find("WorldMapGrid");
+		mapGrid = new Grid();
+		if (mapGridGO != null) {
+			mapGrid = mapGridGO.GetComponent<Grid>();
+		}
+
 		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
 		AIEnemyCharacters = GameObject.FindGameObjectsWithTag("Enemy");
 
 		Button nextTurnBtn = nextTurnButton.GetComponent<Button>();
+		Button attackBtn = attackButton.GetComponent<Button>();
+		
 		nextTurnBtn.onClick.AddListener(StartNextTurnButtonListener);
+		attackBtn.onClick.AddListener(AttackButtonListener);
 	}
 
 	void Update() {
@@ -86,6 +100,7 @@ public class GameManager : MonoBehaviour {
 				IssueCommandToEnemies();
 				break;
 			case EGameState.PlayerTurn:
+				IssueCommandToPlayers();
 				break;
 			default:
 				break;
@@ -122,10 +137,30 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// This should keep track which player-controlled character is currently being chosen
+	/// At any given time, makes sure only one character is active
+	/// </summary>
+	public void IssueCommandToPlayers() {
+		// Grab the position of mouse
+		Vector3 mouseClickWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
+		Vector3Int clickCellInUnity = mapGrid.WorldToCell(mouseClickWorldPos);
+		Vector3 clickedUnityCellCenterWorldPos = mapGrid.CellToWorld(clickCellInUnity);
+
+		bool leftMouseClicked = Input.GetMouseButtonUp(0);
+		foreach (GameObject playerCharGO in PlayerControlCharacters) {
+			Character curPlayerCharacter = playerCharGO.GetComponent<Character>();
+		}
+	}
+
 	public void StartNextTurnButtonListener() {
 		if (_gameState == EGameState.PlayerTurn) {
 			SetGameState(EGameState.AIEnemyTurn);
 			// Need to reset all variables that player and enemy have
 		}
+	}
+
+	public void AttackButtonListener() {
+
 	}
 }
