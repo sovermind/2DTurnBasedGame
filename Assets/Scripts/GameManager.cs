@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour {
 	GameObject[] PlayerControlCharacters;
 	GameObject[] AIEnemyCharacters;
 
+	Character curActivePlayerCharacter;
+
 	public Button nextTurnButton;
 	public Button attackButton;
 
@@ -43,6 +45,9 @@ public class GameManager : MonoBehaviour {
 				AIEnemyCharacterController curEnemyCharacterController = curEnemyGO.GetComponent<AIEnemyCharacterController>();
 				curEnemyCharacterController.ControllerEndThisTurn();
 			}
+			// Reset the current active player character, and switch that to Idle state
+			curActivePlayerCharacter = PlayerControlCharacters[0].GetComponent<Character>();
+			curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
 		}
 
 		// Player has finished, give control to AI enemy
@@ -87,6 +92,15 @@ public class GameManager : MonoBehaviour {
 		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
 		AIEnemyCharacters = GameObject.FindGameObjectsWithTag("Enemy");
 
+		// Make the first character in the player controlled characters array to be active
+		if (PlayerControlCharacters.Length > 0) {
+			curActivePlayerCharacter = PlayerControlCharacters[0].GetComponent<Character>();
+			curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
+		} else {
+			Debug.LogWarning("No player controlled character found?!");
+		}
+		
+
 		Button nextTurnBtn = nextTurnButton.GetComponent<Button>();
 		Button attackBtn = attackButton.GetComponent<Button>();
 		
@@ -100,7 +114,11 @@ public class GameManager : MonoBehaviour {
 				IssueCommandToEnemies();
 				break;
 			case EGameState.PlayerTurn:
-				IssueCommandToPlayers();
+				bool leftMouseClicked = Input.GetMouseButtonUp(0);
+				if (leftMouseClicked) {
+					IssueCommandToPlayers();
+				}
+				
 				break;
 			default:
 				break;
@@ -144,13 +162,34 @@ public class GameManager : MonoBehaviour {
 	public void IssueCommandToPlayers() {
 		// Grab the position of mouse
 		Vector3 mouseClickWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
-		Vector3Int clickCellInUnity = mapGrid.WorldToCell(mouseClickWorldPos);
-		Vector3 clickedUnityCellCenterWorldPos = mapGrid.CellToWorld(clickCellInUnity);
+		//Vector3Int clickCellInUnity = mapGrid.WorldToCell(mouseClickWorldPos);
+		//Vector3 clickedUnityCellCenterWorldPos = mapGrid.CellToWorld(clickCellInUnity);
 
-		bool leftMouseClicked = Input.GetMouseButtonUp(0);
 		foreach (GameObject playerCharGO in PlayerControlCharacters) {
 			Character curPlayerCharacter = playerCharGO.GetComponent<Character>();
+			if (CommonUtil.IsPosInsideBound2D(mouseClickWorldPos, curPlayerCharacter.charSpriteRenderer.bounds)) {
+				// clicking on a player controlled character
+				if (curPlayerCharacter.charCurHexCell == curActivePlayerCharacter.charCurHexCell) {
+					// clicking on the current active char, may be show the current character info?
+				} else {
+					// Player has chosen a different character to control
+					// Need to make the current active character inactive.
+					// If not allowed, meaning current active character is doing something, don't switch current active character
+					if (curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.InActive)) {
+						// update the current active player character
+						curActivePlayerCharacter = curPlayerCharacter;
+						if (curActivePlayerCharacter.characterCurrentActionState == ECharacterActionState.InActive) {
+							curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
+						} else {
+							Debug.LogWarning("current chosen character is already active before player select it, how come????");
+						}
+						
+					}
+				}
+				break;
+			}
 		}
+
 	}
 
 	public void StartNextTurnButtonListener() {

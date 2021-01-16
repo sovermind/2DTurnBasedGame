@@ -12,9 +12,15 @@ public enum ECharacterActionState {
 	Moving = 8,      // 001000
 	Attacking = 16   // 010000
 }
-
+[RequireComponent(typeof(SpriteRenderer))]
 public class Character : MonoBehaviour {
 	private float waitForAttackAnimationTimeSec = 1.0f;
+	private SpriteRenderer _charSpriteRenderer;
+	public SpriteRenderer charSpriteRenderer {
+		get {
+			return _charSpriteRenderer;
+		}
+	}
 
 	[SerializeField]
 	private ECharacterActionState _characterCurrentActionState;    // Current state of the character
@@ -99,6 +105,7 @@ public class Character : MonoBehaviour {
 	void Start() {
 		_characterCurrentActionState = ECharacterActionState.InActive;
 		charAnimator = GetComponent<Animator>();
+		_charSpriteRenderer = GetComponent<SpriteRenderer>();
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
@@ -141,7 +148,7 @@ public class Character : MonoBehaviour {
 						break;
 					default:
 						Debug.LogWarning("Invalid state transition from Inactive to " + newState);
-						break;
+						return false;
 				}
 				break;
 			case ECharacterActionState.Idle:
@@ -195,7 +202,7 @@ public class Character : MonoBehaviour {
 						break;
 					default:
 						Debug.LogWarning("Invalid state transition from Attacking to " + newState);
-						break;
+						return false;
 				}
 				break;
 			default:

@@ -44,12 +44,7 @@ public class PlayerCharacterController : MyCharacterController {
 		// Switch through all different states possible
 		switch (curCharactor.characterCurrentActionState) {
 			case ECharacterActionState.InActive:
-				if (leftMouseClicked) {
-					if (IsInsideBound2D(mouseClickWorldPos, charSpriteRenderer.bounds)) {
-						curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
-					}
-				}
-
+				needToCalAllPossibleDestinations = true;
 				break;
 			case ECharacterActionState.Idle:
 				// Highlight the place that the character is able to move
