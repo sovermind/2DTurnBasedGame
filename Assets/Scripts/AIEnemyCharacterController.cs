@@ -18,7 +18,9 @@ public class AIEnemyCharacterController : MyCharacterController {
 	protected override void Start() {
 		base.Start();
 		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
-		curTargetCharGO = new GameObject();
+		if (PlayerControlCharacters.Length > 0) {
+			curTargetCharGO = PlayerControlCharacters[0];
+		}
 	}
 
 	protected override void Update() {

@@ -100,22 +100,26 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-
-	// Start is called before the first frame update
-	void Start() {
+	private void Awake() {
+		// Game Manager on start will switch character state to Idle so these following variables are needed before that being called
+		// Thus these has to be in Awak() (or some function before GameManager's start())
 		_characterCurrentActionState = ECharacterActionState.InActive;
 		charAnimator = GetComponent<Animator>();
 		_charSpriteRenderer = GetComponent<SpriteRenderer>();
+
+		// On start animation should be inactive
+		charAnimator.SetBool("IsInActive", true);
+		charAnimator.SetBool("IsWalking", false);
+	}
+
+	// Start is called before the first frame update
+	void Start() {
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
 		_attackDone = false;
 		_actionPoints = _maxActionPoints;
 		_charCurHexCell = new HexCell(0, 0, 0);
-
-		// On start animation should be inactive
-		charAnimator.SetBool("IsInActive", true);
-		charAnimator.SetBool("IsWalking", false);
 	}
 
 	// Update is called once per frame
@@ -131,10 +135,11 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
 		Debug.Log("Switch action state from: " + _characterCurrentActionState + " to: " + newState);
-		//if (_characterCurrentActionState == ECharacterActionState.InActive && newState != ECharacterActionState.InActive) {
-		//	hasStartedThisTurn = true;
+		
+		// If for some reason the character has not been set to inactive yet and we ask to transit state, make it in active first
+		//if (_characterCurrentActionState == ECharacterActionState.None) {
+		//	_characterCurrentActionState = ECharacterActionState.InActive;
 		//}
-
 		// State transition should depend on the current state
 		switch (_characterCurrentActionState) {
 			case ECharacterActionState.InActive:

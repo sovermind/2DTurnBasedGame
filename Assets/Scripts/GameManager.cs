@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public enum EGameState {
@@ -20,9 +21,14 @@ public class GameManager : MonoBehaviour {
 
 	Character curActivePlayerCharacter;
 
+	[SerializeField]
 	public Button nextTurnButton;
+
+	[SerializeField]
 	public Button attackButton;
 
+	[SerializeField]
+	public Texture2D shootingCursor;
 
 	[SerializeField]
 	private EGameState _gameState;
@@ -32,6 +38,15 @@ public class GameManager : MonoBehaviour {
 			return _gameState;
 		}
 	}
+
+	private static bool _isClickOnUI;
+	public static bool isClickOnUI {
+		get {
+			return _isClickOnUI;
+		}
+	}
+
+	private static Vector2 cursorHotSpot = Vector2.zero;
 
 	public void SetGameState(EGameState newState) {
 		if (_gameState == newState) {
@@ -99,7 +114,8 @@ public class GameManager : MonoBehaviour {
 		} else {
 			Debug.LogWarning("No player controlled character found?!");
 		}
-		
+
+		_isClickOnUI = false;
 
 		Button nextTurnBtn = nextTurnButton.GetComponent<Button>();
 		Button attackBtn = attackButton.GetComponent<Button>();
@@ -109,13 +125,22 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Update() {
+		if (Input.GetMouseButtonDown(0)) {
+			// Check if the mouse was clicked over a UI element
+			if (EventSystem.current.IsPointerOverGameObject()) {
+				_isClickOnUI = true;
+			} else {
+				_isClickOnUI = false;
+			}
+		}
+		bool leftMouseClicked = Input.GetMouseButtonUp(0);
 		switch (_gameState) {
 			case EGameState.AIEnemyTurn:
 				IssueCommandToEnemies();
 				break;
 			case EGameState.PlayerTurn:
-				bool leftMouseClicked = Input.GetMouseButtonUp(0);
-				if (leftMouseClicked) {
+				
+				if (leftMouseClicked && !isClickOnUI) {
 					IssueCommandToPlayers();
 				}
 				
@@ -200,6 +225,13 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void AttackButtonListener() {
+		Debug.Log("attack button pressed!!!!!");
+		
+		Cursor.SetCursor(shootingCursor, cursorHotSpot, CursorMode.Auto);
+		curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Attacking);
+	}
 
+	public static void ChangeMouseCursorToDefault() {
+		Cursor.SetCursor(null, cursorHotSpot, CursorMode.Auto);
 	}
 }

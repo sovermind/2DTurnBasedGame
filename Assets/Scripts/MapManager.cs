@@ -142,7 +142,7 @@ public class MapManager : MonoBehaviour{
 	// Update is called once per frame
 	void Update() {
 #if DEBUG_MAP_OUTPUTS
-		if (Input.GetMouseButtonUp(0)) {
+		if (Input.GetMouseButtonUp(0) && !GameManager.isClickOnUI) {
 			Vector3 mouseClickWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			Vector3Int clickCell = mapGrid.WorldToCell(mouseClickWorldPos);
 			Vector3 worldpOS = mapGrid.CellToWorld(clickCell);

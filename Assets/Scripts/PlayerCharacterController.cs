@@ -40,6 +40,7 @@ public class PlayerCharacterController : MyCharacterController {
 
 		// Character's current cell
 		HexCell charCurCell = curCharactor.charCurHexCell;
+		bool isClickCellEnemy = false;
 
 		// Switch through all different states possible
 		switch (curCharactor.characterCurrentActionState) {
@@ -59,7 +60,7 @@ public class PlayerCharacterController : MyCharacterController {
 				// left mouse click actions: 
 				// 1. move to cell based on remaining AP
 				// 2. If click on enemy, show enemy information
-				if (leftMouseClicked) {
+				if (leftMouseClicked && !GameManager.isClickOnUI) {
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
 					// Check if the click cell is a cell that char can move to
 					bool isClickCellMovable = false;
@@ -70,7 +71,6 @@ public class PlayerCharacterController : MyCharacterController {
 						}
 					}
 
-					bool isClickCellEnemy = false;
 					// Check if the click cell has enemy character
 					foreach (GameObject enemyGO in AllEnemyCharacters) {
 						Vector3 curEnemyPos = enemyGO.transform.position;
@@ -82,7 +82,7 @@ public class PlayerCharacterController : MyCharacterController {
 					}
 
 					if (isClickCellEnemy) {
-						// TODO: Show enemy information
+						// TODO: Show enemy information, this should be moved into GameManager instead
 					} else if (isClickCellMovable) {
 						// If player can move there and it's not occupied by enemy, switch to moving state and move there
 						int totalPathCost = Int32.MaxValue;
@@ -110,6 +110,25 @@ public class PlayerCharacterController : MyCharacterController {
 				}
 				break;
 			case ECharacterActionState.Attacking:
+				// For now, we only have basic attack, later should have different attack types
+
+				if (leftMouseClicked && !GameManager.isClickOnUI) {
+					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
+					// Check if the click cell has enemy character
+					foreach (GameObject enemyGO in AllEnemyCharacters) {
+						Vector3 curEnemyPos = enemyGO.transform.position;
+						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
+						if (curEnemyCell.Equals(clickCell)) {
+							isClickCellEnemy = true;
+							break;
+						}
+					}
+
+
+
+					GameManager.ChangeMouseCursorToDefault();
+				}
+				
 				break;
 			default:
 				break;
