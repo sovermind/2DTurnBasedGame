@@ -7,6 +7,9 @@ using System;
 [RequireComponent(typeof(Character))]
 public class PlayerCharacterController : MyCharacterController {
 	GameObject[] AllEnemyCharacters;
+	// This should be the current target that player choose. But what if character has area attack?
+	// Should this later be a list instead?
+	Character curTargetEnemy;
 	List<HexCell> allPossibleDest;
 
 	// Start is called before the first frame update
@@ -36,11 +39,8 @@ public class PlayerCharacterController : MyCharacterController {
 		Vector3Int clickCellInUnity = mapGrid.WorldToCell(mouseClickWorldPos);
 		Vector3 clickedUnityCellCenterWorldPos = mapGrid.CellToWorld(clickCellInUnity);
 
-		bool leftMouseClicked = Input.GetMouseButtonUp(0);
-
 		// Character's current cell
 		HexCell charCurCell = curCharactor.charCurHexCell;
-		bool isClickCellEnemy = false;
 
 		// Switch through all different states possible
 		switch (curCharactor.characterCurrentActionState) {
@@ -60,10 +60,11 @@ public class PlayerCharacterController : MyCharacterController {
 				// left mouse click actions: 
 				// 1. move to cell based on remaining AP
 				// 2. If click on enemy, show enemy information
-				if (leftMouseClicked && !GameManager.isClickOnUI) {
+				if (GameManager.isLeftClickUpGamePlay) {
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
 					// Check if the click cell is a cell that char can move to
 					bool isClickCellMovable = false;
+					bool isClickCellEnemy = false;
 					foreach (HexCell destCell in allPossibleDest) {
 						isClickCellMovable = (destCell.Equals(clickCell));
 						if (isClickCellMovable) {
@@ -110,21 +111,34 @@ public class PlayerCharacterController : MyCharacterController {
 				}
 				break;
 			case ECharacterActionState.Attacking:
+				if (curCharactor.hasStartAttack && curCharactor.attackDone) {
+					curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
+				}
+
 				// For now, we only have basic attack, later should have different attack types
 
-				if (leftMouseClicked && !GameManager.isClickOnUI) {
+				if (GameManager.isLeftClickUpGamePlay) {
+					bool isClickCellValidEnemy = false;
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
+					List<HexCell> allAttackableCells = curCharactor.GetAllAttackableCells();
 					// Check if the click cell has enemy character
 					foreach (GameObject enemyGO in AllEnemyCharacters) {
 						Vector3 curEnemyPos = enemyGO.transform.position;
 						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
 						if (curEnemyCell.Equals(clickCell)) {
-							isClickCellEnemy = true;
-							break;
+							foreach (HexCell curAttackableCell in allAttackableCells) {
+								if (curAttackableCell.Equals(curEnemyCell)) {
+									isClickCellValidEnemy = true;
+									curTargetEnemy = enemyGO.GetComponent<Character>();
+									break;
+								}
+							}
 						}
 					}
-
-
+					if (isClickCellValidEnemy) {
+						Debug.Log("ready to attack this enemy! ");
+						curCharactor.PerformAttack();
+					}
 
 					GameManager.ChangeMouseCursorToDefault();
 				}

@@ -28,6 +28,9 @@ public class AIEnemyCharacterController : MyCharacterController {
 
 		switch (GameManager.GetInstance.gameState) {
 			case EGameState.AIEnemyTurn:
+				if (waitInCoroutine) {
+					break;
+				}
 				AIEnemyCheckCharacterStates();
 				break;
 			default:

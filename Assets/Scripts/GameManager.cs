@@ -39,10 +39,17 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private static bool _isClickOnUI;
-	public static bool isClickOnUI {
+	private static bool _isLeftClickDownGamePlay;
+	public static bool isLeftClickDownGamePlay {
 		get {
-			return _isClickOnUI;
+			return _isLeftClickDownGamePlay;
+		}
+	}
+
+	private static bool _isLeftClickUpGamePlay;
+	public static bool isLeftClickUpGamePlay {
+		get {
+			return _isLeftClickUpGamePlay;
 		}
 	}
 
@@ -115,7 +122,8 @@ public class GameManager : MonoBehaviour {
 			Debug.LogWarning("No player controlled character found?!");
 		}
 
-		_isClickOnUI = false;
+		_isLeftClickDownGamePlay = false;
+		_isLeftClickUpGamePlay = false;
 
 		Button nextTurnBtn = nextTurnButton.GetComponent<Button>();
 		Button attackBtn = attackButton.GetComponent<Button>();
@@ -124,23 +132,42 @@ public class GameManager : MonoBehaviour {
 		attackBtn.onClick.AddListener(AttackButtonListener);
 	}
 
-	void Update() {
+	/// <summary>
+	/// This is called the first thing in the Update function. In unity project settings, make sure GameManager has a higher priority in script execution order
+	/// Then all the other script can directly grab information from GameManager's variables rather than do the same logic check over and over
+	/// </summary>
+	void CheckUserInput() {
 		if (Input.GetMouseButtonDown(0)) {
 			// Check if the mouse was clicked over a UI element
 			if (EventSystem.current.IsPointerOverGameObject()) {
-				_isClickOnUI = true;
-			} else {
-				_isClickOnUI = false;
+				_isLeftClickDownGamePlay = false;
+			}
+			else {
+				_isLeftClickDownGamePlay = true;
 			}
 		}
-		bool leftMouseClicked = Input.GetMouseButtonUp(0);
+		// if the left click down is on the game play, then no matter where the button is up, it's still game play press
+		// if the left click down is on UI display, then no matter where the button is up, it's not a game play press
+		if (Input.GetMouseButtonUp(0)) {
+			if (_isLeftClickDownGamePlay) {
+				_isLeftClickUpGamePlay = true;
+			} else {
+				_isLeftClickUpGamePlay = false;
+			}
+		} else {
+			_isLeftClickUpGamePlay = false;
+		}
+	}
+
+	void Update() {
+		CheckUserInput();
 		switch (_gameState) {
 			case EGameState.AIEnemyTurn:
 				IssueCommandToEnemies();
 				break;
 			case EGameState.PlayerTurn:
 				
-				if (leftMouseClicked && !isClickOnUI) {
+				if (GameManager.isLeftClickUpGamePlay) {
 					IssueCommandToPlayers();
 				}
 				

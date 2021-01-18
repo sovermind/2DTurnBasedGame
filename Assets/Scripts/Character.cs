@@ -272,7 +272,6 @@ public class Character : MonoBehaviour {
 		_hasStartAttack = true;
 		charAnimator.SetTrigger("BasicAttack");
 
-		Debug.Log("perform basic attack");
 		StartCoroutine(WaitForBasicAttackToFinish());
 	}
 

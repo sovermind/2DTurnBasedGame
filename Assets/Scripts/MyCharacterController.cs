@@ -16,6 +16,7 @@ public class MyCharacterController : MonoBehaviour {
 	protected GameObject mapGridGO;
 	protected Grid mapGrid;
 	protected bool needToCalAllPossibleDestinations;
+	protected bool waitInCoroutine;
 
 	protected virtual void Start() {
 		mainCam = Camera.main;
@@ -28,6 +29,7 @@ public class MyCharacterController : MonoBehaviour {
 		charNavigation = new NavigationManager();
 		isMoving = false;
 		needToCalAllPossibleDestinations = true;
+		waitInCoroutine = false;
 	}
 
 	protected virtual void Update() {
@@ -63,7 +65,9 @@ public class MyCharacterController : MonoBehaviour {
 	/// <param name="newState"></param>
 	/// <returns></returns>
 	protected IEnumerator WaitSecondsThenTransitTo(float tSec, ECharacterActionState newState) {
+		waitInCoroutine = true;
 		yield return new WaitForSeconds(tSec);
+		waitInCoroutine = false;
 		curCharactor.SwitchActionStateTo(newState);
 	}
 }
