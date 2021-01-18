@@ -7,9 +7,6 @@ using System;
 [RequireComponent(typeof(Character))]
 public class PlayerCharacterController : MyCharacterController {
 	GameObject[] AllEnemyCharacters;
-	// This should be the current target that player choose. But what if character has area attack?
-	// Should this later be a list instead?
-	Character curTargetEnemy;
 	List<HexCell> allPossibleDest;
 
 	// Start is called before the first frame update
@@ -129,14 +126,13 @@ public class PlayerCharacterController : MyCharacterController {
 							foreach (HexCell curAttackableCell in allAttackableCells) {
 								if (curAttackableCell.Equals(curEnemyCell)) {
 									isClickCellValidEnemy = true;
-									curTargetEnemy = enemyGO.GetComponent<Character>();
+									curCharactor.SetCurTargetCharacter(enemyGO.GetComponent<Character>());
 									break;
 								}
 							}
 						}
 					}
 					if (isClickCellValidEnemy) {
-						Debug.Log("ready to attack this enemy! ");
 						curCharactor.PerformAttack();
 					}
 

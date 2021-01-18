@@ -12,14 +12,13 @@ public class AIEnemyCharacterController : MyCharacterController {
 	private float waitSecsThenTransit = 0.3f;
 
 	GameObject[] PlayerControlCharacters;
-	GameObject curTargetCharGO;
 
 	// Start is called before the first frame update
 	protected override void Start() {
 		base.Start();
 		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
 		if (PlayerControlCharacters.Length > 0) {
-			curTargetCharGO = PlayerControlCharacters[0];
+			curCharactor.SetCurTargetCharacter(PlayerControlCharacters[0].GetComponent<Character>());
 		}
 	}
 
@@ -40,11 +39,10 @@ public class AIEnemyCharacterController : MyCharacterController {
 
 	void AIEnemyCheckCharacterStates() {
 		// (TODO): Choose the appropriate target char
-		curTargetCharGO = PlayerControlCharacters[0];
+		curCharactor.SetCurTargetCharacter(PlayerControlCharacters[0].GetComponent<Character>());
 
 		// Get the target world position
-		Vector3 curTargetCharPos = curTargetCharGO.transform.position;
-		HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharPos);
+		HexCell curTargetCell = curCharactor.curTargetCharacter.charCurHexCell;
 
 		// Get the current character world position and hex cell
 		Vector3 curPos = transform.position;
@@ -117,7 +115,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 			HexCell nextCell = charNavigation.GetNextCellInPath();
 			int nextMoveCost = MapManager.GetTileCostFromHexCell(nextCell);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
-			HexCell curTargetCell = HexMap.hexMap.GetHexCellFromWorldPos(curTargetCharGO.transform.position);
+			HexCell curTargetCell = curCharactor.curTargetCharacter.charCurHexCell;
 			if (curCharactor.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
 				charNavigation.MoveOneStep(true);
 				curCharactor.actionPoints = curCharactor.actionPoints - nextMoveCost;

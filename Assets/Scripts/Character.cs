@@ -100,6 +100,19 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	// This should be the current target that this character is focused on(attack, move towards, heal, etc.). But what if character has area attack?
+	// Should this later be a list instead?
+	private Character _curTargetCharacter;
+	public Character curTargetCharacter {
+		get {
+			return _curTargetCharacter;
+		}
+	}
+
+	public void SetCurTargetCharacter(Character targetChar) {
+		_curTargetCharacter = targetChar;
+	}
+
 	private void Awake() {
 		// Game Manager on start will switch character state to Idle so these following variables are needed before that being called
 		// Thus these has to be in Awak() (or some function before GameManager's start())
