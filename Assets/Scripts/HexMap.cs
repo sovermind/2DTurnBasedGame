@@ -270,7 +270,6 @@ public class HexMap {
 
 		float q = (Mathf.Sqrt(3.0f) / 3.0f * xIncrement - 1.0f / 3.0f * yIncrement) / hexCellSideLength;
 		float r = (2.0f / 3.0f * yIncrement) / hexCellSideLength;
-		Debug.Log("q r: " + q + ", " + r);
 		return HexRound(q, r);
 	}
 

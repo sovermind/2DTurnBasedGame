@@ -147,7 +147,7 @@ public class MapManager : MonoBehaviour{
 			Vector3Int clickCell = mapGrid.WorldToCell(mouseClickWorldPos);
 			Vector3 worldpOS = mapGrid.CellToWorld(clickCell);
 			HexCell clickHexCell = HexMap.hexMap.GetHexCellFromWorldPos(worldpOS);
-			//Debug.Log("click cell: " + clickCell + " mouseClickWorldPos: " + mouseClickWorldPos + ", world pos from cell: " + worldpOS + ", hex cell: " + clickHexCell.hexCellPos);
+			Debug.Log("click cell: " + clickCell + " mouseClickWorldPos: " + mouseClickWorldPos + ", world pos from cell: " + worldpOS + ", hex cell: " + clickHexCell.hexCellPos);
 			if (tileMapDataDict.ContainsKey(clickCell)) {
 				TileMapData curTileData = tileMapDataDict[clickCell];
 				curTileData.highlightType = curTileData.highlightType | ETileHighlightType.MoveRange;
@@ -172,6 +172,11 @@ public class MapManager : MonoBehaviour{
 			HighlightThisCell(entry.Key, entry.Value.highlightType);
 		}
 
+	}
+
+	public static Vector3 GetMapGridCellCenterWorldPos(Vector3 pos) {
+		Vector3Int unityCell = mapGrid.WorldToCell(pos);
+		return mapGrid.CellToWorld(unityCell);
 	}
 
 	private void OnDrawGizmos() {

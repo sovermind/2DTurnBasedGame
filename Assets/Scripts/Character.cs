@@ -121,8 +121,8 @@ public class Character : MonoBehaviour {
 	private HexCell _charCurHexCell;
 	public HexCell charCurHexCell {
 		get {
-			Debug.Log("pos: " + transform.position);
-			_charCurHexCell = HexMap.hexMap.GetHexCellFromWorldPos(transform.position);
+			Vector3 worldPos = MapManager.GetMapGridCellCenterWorldPos(transform.position);
+			_charCurHexCell = HexMap.hexMap.GetHexCellFromWorldPos(worldPos);
 			return _charCurHexCell;
 		}
 	}
@@ -160,17 +160,16 @@ public class Character : MonoBehaviour {
 		_attackDone = false;
 		_health = _maxHealth;
 		_actionPoints = _maxActionPoints;
-		_charCurHexCell = new HexCell(0, 0, 0);
+		// Make sure the character starts off at the center of the hexcell
+		transform.position = HexMap.hexMap.GetWorldPosFromHexCell(charCurHexCell);
 
 		// UI Control init
 		healthBar.SetStatsMaxAmount((int)_maxHealth);
-		Debug.Log("my current position: " + charCurHexCell.hexCellPos);
-
 	}
 
 	// Update is called once per frame
 	void Update() {
-		_charCurHexCell = HexMap.hexMap.GetHexCellFromWorldPos(transform.position);
+
 	}
 
 	/// <summary>
