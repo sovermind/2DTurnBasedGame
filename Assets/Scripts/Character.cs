@@ -14,6 +14,9 @@ public enum ECharacterActionState {
 }
 [RequireComponent(typeof(SpriteRenderer))]
 public class Character : MonoBehaviour {
+	[Header("UI Related")]
+	public StatsBarController healthBar;
+
 	private float waitForAttackAnimationTimeSec = 1.0f;
 	private SpriteRenderer _charSpriteRenderer;
 	public SpriteRenderer charSpriteRenderer {
@@ -22,14 +25,7 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-	[SerializeField]
-	private ECharacterActionState _characterCurrentActionState;    // Current state of the character
-	public ECharacterActionState characterCurrentActionState {
-		get {
-			return _characterCurrentActionState;
-		}
-	}
-
+	[Header("Constants")]
 	[SerializeField]
 	private float _movingIntervalSec = 0.2f;           // Time interval in sec for character move from current cell to the next
 	public float movingIntervalSec {
@@ -38,15 +34,63 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-
+	[Header("Character states")]
 	[SerializeField]
-	private int _health;
-	public int health {
-		set {
-			_health = value;
+	private ECharacterActionState _characterCurrentActionState;    // Current state of the character
+	public ECharacterActionState characterCurrentActionState {
+		get {
+			return _characterCurrentActionState;
 		}
+	}
+
+	public bool hasFinishedThisTurn;
+
+	public bool hasStartedThisTurn;
+
+	private bool _hasStartAttack;
+	public bool hasStartAttack {
+		get {
+			return _hasStartAttack;
+		}
+	}
+
+	private bool _attackDone;
+	public bool attackDone {
+		get {
+			return _attackDone;
+		}
+	}
+
+	[Header("Character properties")]
+	[SerializeField]
+	private uint _health;
+	public uint health {
 		get {
 			return _health;
+		}
+	}
+
+	[SerializeField]
+	private uint _maxHealth;
+	public uint maxHealth {
+		get {
+			return _maxHealth;
+		}
+	}
+
+	[SerializeField]
+	private int _attack;
+	public int attack {
+		get {
+			return _attack;
+		}
+	}
+
+	[SerializeField]
+	private int _defend;
+	public int defend {
+		get {
+			return _defend;
 		}
 	}
 
@@ -70,24 +114,6 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-	private bool _hasStartAttack;
-	public bool hasStartAttack {
-		get {
-			return _hasStartAttack;
-		}
-	}
-
-	private bool _attackDone;
-	public bool attackDone {
-		get {
-			return _attackDone;
-		}
-	}
-
-	public bool hasFinishedThisTurn;
-
-	public bool hasStartedThisTurn;
-
 	public int attackRangeRadius;
 
 	private Animator charAnimator;
@@ -95,6 +121,7 @@ public class Character : MonoBehaviour {
 	private HexCell _charCurHexCell;
 	public HexCell charCurHexCell {
 		get {
+			Debug.Log("pos: " + transform.position);
 			_charCurHexCell = HexMap.hexMap.GetHexCellFromWorldPos(transform.position);
 			return _charCurHexCell;
 		}
@@ -131,8 +158,14 @@ public class Character : MonoBehaviour {
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
 		_attackDone = false;
+		_health = _maxHealth;
 		_actionPoints = _maxActionPoints;
 		_charCurHexCell = new HexCell(0, 0, 0);
+
+		// UI Control init
+		healthBar.SetStatsMaxAmount((int)_maxHealth);
+		Debug.Log("my current position: " + charCurHexCell.hexCellPos);
+
 	}
 
 	// Update is called once per frame
@@ -286,6 +319,21 @@ public class Character : MonoBehaviour {
 		charAnimator.SetTrigger("BasicAttack");
 
 		StartCoroutine(WaitForBasicAttackToFinish());
+
+		// Damage the target
+		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
+		curTargetCharacter.TakeDamage(damage);
+	}
+
+	public void TakeDamage(uint damageAmount) {
+		if (_health >= damageAmount) {
+			_health = _health - damageAmount;
+		} else {
+			_health = 0;
+		}
+
+		// UI adjustments
+		healthBar.SetStatsCurAmount((int)_health);
 	}
 
 	IEnumerator WaitForBasicAttackToFinish() {
