@@ -1352,6 +1352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c541747c864ebd43865f6ee00a8ae5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barSlider: {fileID: 983817453}
 --- !u!1 &1135197505
 GameObject:
   m_ObjectHideFlags: 0
@@ -1767,6 +1768,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c541747c864ebd43865f6ee00a8ae5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barSlider: {fileID: 1582594375}
 --- !u!114 &1582594375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5434,7 +5436,7 @@ PrefabInstance:
     - target: {fileID: 5426394838096276227, guid: 6b34fdd8df5a48e4a8aa877c6047493d,
         type: 3}
       propertyPath: m_Name
-      value: warrior
+      value: Warrior
       objectReference: {fileID: 0}
     - target: {fileID: 5426394838096276227, guid: 6b34fdd8df5a48e4a8aa877c6047493d,
         type: 3}

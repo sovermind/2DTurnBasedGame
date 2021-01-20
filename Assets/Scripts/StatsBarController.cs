@@ -8,6 +8,7 @@ using UnityEngine.UI;
 /// </summary>
 [RequireComponent(typeof(Slider))]
 public class StatsBarController : MonoBehaviour {
+	[SerializeField]
 	private Slider barSlider;
 
 	public void SetStatsCurAmount(int amount) {
@@ -25,7 +26,6 @@ public class StatsBarController : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-		barSlider = GetComponent<Slider>();
     }
 
     // Update is called once per frame

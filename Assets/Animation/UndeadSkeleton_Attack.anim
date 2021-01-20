@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: undead_skeleton_Attack
+  m_Name: UndeadSkeleton_Attack
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0

@@ -10,7 +10,8 @@ public enum ECharacterActionState {
 	InActive = 2,    // 000010
 	Idle = 4,        // 000100
 	Moving = 8,      // 001000
-	Attacking = 16   // 010000
+	Attacking = 16,  // 010000
+	Hurting = 32     // 100000
 }
 [RequireComponent(typeof(SpriteRenderer))]
 public class Character : MonoBehaviour {
@@ -43,6 +44,8 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private ECharacterActionState _characterPrevActionState;
+
 	public bool hasFinishedThisTurn;
 
 	public bool hasStartedThisTurn;
@@ -62,6 +65,7 @@ public class Character : MonoBehaviour {
 	}
 
 	[Header("Character properties")]
+	private string _curCharacterName;
 	[SerializeField]
 	private uint _health;
 	public uint health {
@@ -144,6 +148,7 @@ public class Character : MonoBehaviour {
 		// Game Manager on start will switch character state to Idle so these following variables are needed before that being called
 		// Thus these has to be in Awak() (or some function before GameManager's start())
 		_characterCurrentActionState = ECharacterActionState.InActive;
+		_characterPrevActionState = ECharacterActionState.InActive;
 		charAnimator = GetComponent<Animator>();
 		_charSpriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -154,6 +159,7 @@ public class Character : MonoBehaviour {
 
 	// Start is called before the first frame update
 	void Start() {
+		_curCharacterName = this.name;
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
@@ -169,7 +175,17 @@ public class Character : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update() {
-
+		
+		switch (_characterCurrentActionState) {
+			case ECharacterActionState.Hurting:
+				// Check if the normalized time greater than 100% and make sure it's not in transition
+				if (charAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !charAnimator.IsInTransition(0)) {
+					SwitchActionStateTo(_characterPrevActionState);
+				}
+				break;
+			default:
+				break;
+		}
 	}
 
 	/// <summary>
@@ -180,7 +196,8 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
 		Debug.Log("Switch action state from: " + _characterCurrentActionState + " to: " + newState);
-		
+		_characterPrevActionState = _characterCurrentActionState;
+
 		// If for some reason the character has not been set to inactive yet and we ask to transit state, make it in active first
 		//if (_characterCurrentActionState == ECharacterActionState.None) {
 		//	_characterCurrentActionState = ECharacterActionState.InActive;
@@ -195,6 +212,10 @@ public class Character : MonoBehaviour {
 						charAnimator.SetBool("IsInActive", false);
 						charAnimator.SetBool("IsWalking", false);
 						hasStartedThisTurn = true;
+						break;
+					case ECharacterActionState.Hurting:
+						charAnimator.SetTrigger("Hurt");
+						charAnimator.SetBool("IsInActive", false);
 						break;
 					default:
 						Debug.LogWarning("Invalid state transition from Inactive to " + newState);
@@ -216,6 +237,9 @@ public class Character : MonoBehaviour {
 					case ECharacterActionState.Attacking:
 						charAnimator.SetBool("IsWalking", false);
 						break;
+					case ECharacterActionState.Hurting:
+						charAnimator.SetTrigger("Hurt");
+						break;
 					default:
 						break;
 				}
@@ -234,6 +258,9 @@ public class Character : MonoBehaviour {
 					case ECharacterActionState.Attacking:
 						charAnimator.SetBool("IsWalking", false);
 						break;
+					case ECharacterActionState.Hurting:
+						charAnimator.SetTrigger("Hurt");
+						break;
 					default:
 						break;
 				}
@@ -250,8 +277,28 @@ public class Character : MonoBehaviour {
 						break;
 					case ECharacterActionState.Attacking:
 						break;
+					case ECharacterActionState.Hurting:
+						charAnimator.SetTrigger("Hurt");
+						break;
 					default:
 						Debug.LogWarning("Invalid state transition from Attacking to " + newState);
+						return false;
+				}
+				break;
+			case ECharacterActionState.Hurting:
+				switch (newState) {
+					case ECharacterActionState.InActive:
+						charAnimator.SetBool("IsInActive", true);
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Idle:
+						charAnimator.SetBool("IsInActive", false);
+						charAnimator.SetBool("IsWalking", false);
+						break;
+					case ECharacterActionState.Attacking:
+						break;
+					default:
+						Debug.LogWarning("Invalid state transition from Hurting to " + newState);
 						return false;
 				}
 				break;
@@ -318,13 +365,24 @@ public class Character : MonoBehaviour {
 		charAnimator.SetTrigger("BasicAttack");
 
 		StartCoroutine(WaitForBasicAttackToFinish());
+		//while (true) {
+		//	if (!charAnimator.GetCurrentAnimatorStateInfo(0).IsName("undead_skeleton_BasicAttack")) {
+		//		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
+		//		curTargetCharacter.TakeDamage(damage);
+		//		_attackDone = true;
+		//		Debug.Log("attack animation done!!!!");
+		//		break;
+		//	}
+		//}
 
-		// Damage the target
-		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
-		curTargetCharacter.TakeDamage(damage);
+
 	}
 
 	public void TakeDamage(uint damageAmount) {
+		ECharacterActionState curState = _characterCurrentActionState;
+		Debug.Log(curState);
+
+		SwitchActionStateTo(ECharacterActionState.Hurting);
 		if (_health >= damageAmount) {
 			_health = _health - damageAmount;
 		} else {
@@ -337,6 +395,9 @@ public class Character : MonoBehaviour {
 
 	IEnumerator WaitForBasicAttackToFinish() {
 		yield return new WaitForSeconds(waitForAttackAnimationTimeSec);
+		// Damage the target
+		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
+		curTargetCharacter.TakeDamage(damage);
 		_attackDone = true;
 	}
 }
