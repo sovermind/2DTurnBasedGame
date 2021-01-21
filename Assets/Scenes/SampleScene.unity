@@ -5419,11 +5419,6 @@ PrefabInstance:
       propertyPath: attackButton
       value: 
       objectReference: {fileID: 449535086}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: shootingCursor
-      value: 
-      objectReference: {fileID: 2800000, guid: 067ea32628043e349996812e22cc9bf5, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 01149995197d2a7488f50aeb96d055ae, type: 3}
 --- !u!1001 &5426394837340175612

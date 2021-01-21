@@ -44,4 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextTurnButton: {fileID: 0}
+  attackButton: {fileID: 0}
+  shootingCursor: {fileID: 2800000, guid: 067ea32628043e349996812e22cc9bf5, type: 3}
   _gameState: 0

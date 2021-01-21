@@ -295,6 +295,10 @@ public class Character : MonoBehaviour {
 						charAnimator.SetBool("IsInActive", false);
 						charAnimator.SetBool("IsWalking", false);
 						break;
+					case ECharacterActionState.Moving:
+						charAnimator.SetBool("IsInActive", false);
+						charAnimator.SetBool("IsWalking", true);
+						break;
 					case ECharacterActionState.Attacking:
 						break;
 					default:

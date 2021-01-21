@@ -17,6 +17,7 @@ public class MyCharacterController : MonoBehaviour {
 	protected Grid mapGrid;
 	protected bool needToCalAllPossibleDestinations;
 	protected bool waitInCoroutine;
+	private bool hasTurnedOffAttackRangeHighlight;
 
 	protected virtual void Start() {
 		mainCam = Camera.main;
@@ -30,14 +31,20 @@ public class MyCharacterController : MonoBehaviour {
 		isMoving = false;
 		needToCalAllPossibleDestinations = true;
 		waitInCoroutine = false;
+		hasTurnedOffAttackRangeHighlight = false;
 	}
 
 	protected virtual void Update() {
 		Vector3 mouseClickWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
 		if (CommonUtil.IsPosInsideBound2D(mouseClickWorldPos, curCharactor.charSpriteRenderer.bounds)) {
 			HighlightAttackRangeCells(true);
+			hasTurnedOffAttackRangeHighlight = false;
 		} else {
-			HighlightAttackRangeCells(false);
+			if (!hasTurnedOffAttackRangeHighlight) {
+				hasTurnedOffAttackRangeHighlight = true;
+				HighlightAttackRangeCells(false);
+			}
+			
 		}
 	}
 
