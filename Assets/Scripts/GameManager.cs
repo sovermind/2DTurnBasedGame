@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour {
 	public Button attackButton;
 
 	[SerializeField]
+	public Button[] skillButtons;
+
+	[SerializeField]
 	public Texture2D shootingCursor;
 
 	[SerializeField]
@@ -130,6 +133,20 @@ public class GameManager : MonoBehaviour {
 		
 		nextTurnBtn.onClick.AddListener(StartNextTurnButtonListener);
 		attackBtn.onClick.AddListener(AttackButtonListener);
+		foreach (Button skillBtn in skillButtons) {
+			string btnNumb = string.Empty;
+			string btnName = skillBtn.name;
+			for (int i = 0; i < btnName.Length; i++) {
+				if (char.IsDigit(btnName[i])) {
+					btnNumb += btnName[i];
+				}
+			}
+			int btnN = -1;
+			if (btnNumb.Length > 0) {
+				btnN = int.Parse(btnNumb);
+			}
+			skillBtn.onClick.AddListener(delegate { SkillButtonListener(btnN); });
+		}
 	}
 
 	/// <summary>
@@ -256,6 +273,11 @@ public class GameManager : MonoBehaviour {
 		
 		Cursor.SetCursor(shootingCursor, cursorHotSpot, CursorMode.Auto);
 		curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Attacking);
+	}
+
+	public void SkillButtonListener(int btnNumb) {
+		// Debug.Log("btn pressed " + btnNumb);
+
 	}
 
 	public static void ChangeMouseCursorToDefault() {
