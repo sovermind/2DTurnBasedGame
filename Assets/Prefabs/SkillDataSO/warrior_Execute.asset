@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6de24ec079eb4b84495b65b5d1877258, type: 3}
-  m_Name: warrior_ShieldsUp
+  m_Name: warrior_Execute
   m_EditorClassIdentifier: 
-  skillName: Shields Up
-  skillIcon: {fileID: 21300000, guid: 25af46234cc1f5449a647ea41e0a77b0, type: 3}
+  skillName: Execute
+  skillIcon: {fileID: 21300000, guid: 653b4745b8ff09d45bc6c836228b7b0c, type: 3}
   level: 0
   maxLevel: 10
   costToUpgrade: 
   targetType: 2
-  attackRangeRadInCell: 0
+  attackRangeRadInCell: 1
   effectiveRangeRadInCell: 0
   castCost: 10
-  damageType: 0
+  damageType: 1

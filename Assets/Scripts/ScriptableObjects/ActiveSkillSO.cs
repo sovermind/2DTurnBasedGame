@@ -6,4 +6,6 @@ using UnityEngine;
 public class ActiveSkillSO : SkillSO {
 	public int attackRangeRadInCell;
 	public int effectiveRangeRadInCell;
+	public int castCost;
+	public SkillDamageType damageType;
 }

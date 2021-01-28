@@ -31,6 +31,9 @@ public class GameManager : MonoBehaviour {
 	public Button[] skillButtons;
 
 	[SerializeField]
+	public Sprite skillLockButtonSprite;
+
+	[SerializeField]
 	public Texture2D shootingCursor;
 
 	[SerializeField]
@@ -146,6 +149,9 @@ public class GameManager : MonoBehaviour {
 				btnN = int.Parse(btnNumb);
 			}
 			skillBtn.onClick.AddListener(delegate { SkillButtonListener(btnN); });
+
+			// Set up the button sprite to be locked by default
+			skillBtn.image.sprite = skillLockButtonSprite;
 		}
 	}
 

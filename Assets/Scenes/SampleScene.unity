@@ -829,7 +829,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 25af46234cc1f5449a647ea41e0a77b0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eb80aecdd9200de4184dcaf39f07b2ac, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2021,6 +2021,7 @@ MonoBehaviour:
   _actionPoints: 4
   _maxActionPoints: 4
   attackRangeRadius: 1
+  allPossibleActiveSkills: []
 --- !u!1 &1258353111
 GameObject:
   m_ObjectHideFlags: 0
@@ -6016,6 +6017,12 @@ PrefabInstance:
       propertyPath: skillButtons.Array.data[3]
       value: 
       objectReference: {fileID: 142471219}
+    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
+        type: 3}
+      propertyPath: skillLockButtonSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: eb80aecdd9200de4184dcaf39f07b2ac,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 01149995197d2a7488f50aeb96d055ae, type: 3}
 --- !u!1001 &5426394837340175612
@@ -6127,6 +6134,11 @@ MonoBehaviour:
   _actionPoints: 4
   _maxActionPoints: 4
   attackRangeRadius: 1
+  allPossibleActiveSkills:
+  - {fileID: 11400000, guid: 670308b8a8100bf4f8812c474e535d65, type: 2}
+  - {fileID: 11400000, guid: a6eb2192c0b37a546a95259fa1a16422, type: 2}
+  - {fileID: 11400000, guid: 77c77b7aca5cd6742a542f5fffaa7c36, type: 2}
+  - {fileID: 11400000, guid: d29dacf23ccba084bb8c3904f99a6160, type: 2}
 --- !u!4 &5426394837340175618 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5426394838096274685, guid: 6b34fdd8df5a48e4a8aa877c6047493d,

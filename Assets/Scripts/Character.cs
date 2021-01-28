@@ -4,6 +4,7 @@ using UnityEngine;
 
 [System.Flags]
 public enum ECharacterActionState {
+	// TODO: may need to revisit this. unity seems to have none and everything by default.
 	// Decimal       // Binary
 	None = 0,        // 000000
 	Everything = 1,  // 000001
@@ -13,6 +14,17 @@ public enum ECharacterActionState {
 	Attacking = 16,  // 010000
 	Hurting = 32     // 100000
 }
+
+struct SkillStatus {
+	public int curLevel;
+	public bool isPrimaryBattleSkill;
+
+	public SkillStatus(int cl, bool isPrimary) {
+		curLevel = 0;
+		isPrimaryBattleSkill = false;
+	}
+}
+
 [RequireComponent(typeof(SpriteRenderer))]
 public class Character : MonoBehaviour {
 	[Header("UI Related")]
@@ -64,8 +76,9 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-	[Header("Character properties")]
+	
 	private string _curCharacterName;
+	[Header("Character properties")]
 	[SerializeField]
 	private uint _health;
 	public uint health {
@@ -120,6 +133,11 @@ public class Character : MonoBehaviour {
 
 	public int attackRangeRadius;
 
+	[Header("Character Skills")]
+	public ActiveSkillSO[] allPossibleActiveSkills;
+	private Dictionary<SkillSO, SkillStatus> allSkillDict;
+
+
 	private Animator charAnimator;
 
 	private HexCell _charCurHexCell;
@@ -146,7 +164,7 @@ public class Character : MonoBehaviour {
 
 	private void Awake() {
 		// Game Manager on start will switch character state to Idle so these following variables are needed before that being called
-		// Thus these has to be in Awak() (or some function before GameManager's start())
+		// Thus these has to be in Awake() (or some function before GameManager's start())
 		_characterCurrentActionState = ECharacterActionState.InActive;
 		_characterPrevActionState = ECharacterActionState.InActive;
 		charAnimator = GetComponent<Animator>();
@@ -155,6 +173,16 @@ public class Character : MonoBehaviour {
 		// On start animation should be inactive
 		charAnimator.SetBool("IsInActive", true);
 		charAnimator.SetBool("IsWalking", false);
+
+		// Construct the dictionary for all the skills
+		allSkillDict = new Dictionary<SkillSO, SkillStatus>();
+		foreach (ActiveSkillSO activeSkillso in allPossibleActiveSkills) {
+			if (!allSkillDict.ContainsKey(activeSkillso)) {
+				allSkillDict.Add(activeSkillso, new SkillStatus(0, false));
+			} else {
+				Debug.LogWarning("Potential duplicate skill SO exist: " + activeSkillso.skillName);
+			}
+		}
 	}
 
 	// Start is called before the first frame update
@@ -175,7 +203,7 @@ public class Character : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update() {
-		
+
 		switch (_characterCurrentActionState) {
 			case ECharacterActionState.Hurting:
 				// Check if the normalized time greater than 100% and make sure it's not in transition
