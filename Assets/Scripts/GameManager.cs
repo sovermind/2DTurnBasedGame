@@ -9,6 +9,15 @@ public enum EGameState {
 	AIEnemyTurn
 }
 
+public enum EAttackAndPrimaryActiveSkillID {
+	BasicAttack = 0,
+	SkillOne,
+	SkillTwo,
+	SkillThree,
+	SkillFour,
+	AttackAndPrimaryActiveSkillCount
+}
+
 public class GameManager : MonoBehaviour {
 	private static GameManager _instance;
 
@@ -24,14 +33,15 @@ public class GameManager : MonoBehaviour {
 	[SerializeField]
 	public Button nextTurnButton;
 
-	[SerializeField]
-	public Button attackButton;
+	//[SerializeField]
+	//public Button attackButton;
 
 	[SerializeField]
-	public Button[] skillButtons;
+	public Button[] basicAttackAndSkillButtons;
 
 	[SerializeField]
-	public Sprite skillLockButtonSprite;
+	private SkillSO _defaultActiveSkill;
+	static public SkillSO defaultActiveSkill;
 
 	[SerializeField]
 	public Texture2D shootingCursor;
@@ -95,6 +105,7 @@ public class GameManager : MonoBehaviour {
 			_instance = this;
 		}
 		_gameState = EGameState.PlayerTurn;
+		defaultActiveSkill = _defaultActiveSkill;
 
 		DontDestroyOnLoad(gameObject);
 	}
@@ -131,27 +142,35 @@ public class GameManager : MonoBehaviour {
 		_isLeftClickDownGamePlay = false;
 		_isLeftClickUpGamePlay = false;
 
-		Button nextTurnBtn = nextTurnButton.GetComponent<Button>();
-		Button attackBtn = attackButton.GetComponent<Button>();
-		
+		Button nextTurnBtn = nextTurnButton.GetComponent<Button>();		
 		nextTurnBtn.onClick.AddListener(StartNextTurnButtonListener);
-		attackBtn.onClick.AddListener(AttackButtonListener);
-		foreach (Button skillBtn in skillButtons) {
+
+		// TODO: Right now for testing purpose, will manually set up skills
+		bool setSkillSuccess = curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("Shields Up", 0);
+		Debug.Log("set skill success: " + setSkillSuccess);
+
+		//curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("Bleed Blade", 1);
+		List<SkillSO> basicAttackAndprimarySkills = curActivePlayerCharacter.GetCurrentBasicAttackAndPrimaryBattleSkills();
+
+		for (int i = 0; i < (int)EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount; i++) {
+			Button attackAndSkillBtn = basicAttackAndSkillButtons[i];
 			string btnNumb = string.Empty;
-			string btnName = skillBtn.name;
-			for (int i = 0; i < btnName.Length; i++) {
-				if (char.IsDigit(btnName[i])) {
-					btnNumb += btnName[i];
+			string btnName = attackAndSkillBtn.name;
+			for (int j = 0; j < btnName.Length; j++) {
+				if (char.IsDigit(btnName[j])) {
+					btnNumb += btnName[j];
 				}
 			}
 			int btnN = -1;
 			if (btnNumb.Length > 0) {
 				btnN = int.Parse(btnNumb);
 			}
-			skillBtn.onClick.AddListener(delegate { SkillButtonListener(btnN); });
+			attackAndSkillBtn.onClick.AddListener(delegate { SkillAttackButtonListener(btnN); });
 
-			// Set up the button sprite to be locked by default
-			skillBtn.image.sprite = skillLockButtonSprite;
+			// Set up the button sprite according to current primary skills stored in character
+			if (basicAttackAndprimarySkills[i].skillIcon != null) {
+				attackAndSkillBtn.image.sprite = basicAttackAndprimarySkills[i].skillIcon;
+			}
 		}
 	}
 
@@ -274,16 +293,14 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	public void AttackButtonListener() {
-		Debug.Log("attack button pressed!!!!!");
-		
+	/// <summary>
+	/// Basic attack and primary active skill button listeners.
+	/// </summary>
+	/// <param name="btnNumb">0 - basic attack; 1-4 correspond to skill 1-4</param>
+	public void SkillAttackButtonListener(int btnNumb) {
+		Debug.Log("btn pressed " + btnNumb);
 		Cursor.SetCursor(shootingCursor, cursorHotSpot, CursorMode.Auto);
 		curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Attacking);
-	}
-
-	public void SkillButtonListener(int btnNumb) {
-		// Debug.Log("btn pressed " + btnNumb);
-
 	}
 
 	public static void ChangeMouseCursorToDefault() {

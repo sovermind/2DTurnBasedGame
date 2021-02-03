@@ -9,16 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6de24ec079eb4b84495b65b5d1877258, type: 3}
-  m_Name: warrior_BleedBlade
+  m_Script: {fileID: 11500000, guid: 75cc29f5f45f94747b74eed8424e4877, type: 3}
+  m_Name: WarriorHeadSmash
   m_EditorClassIdentifier: 
-  skillName: Bleed Blade
-  skillIcon: {fileID: 21300000, guid: 79f47389d766e7d4ca5b97739c348b91, type: 3}
-  level: 0
-  maxLevel: 10
+  skillName: 
+  skillIcon: {fileID: 21300000, guid: be62d75a3f5d9a144af54f44b5ade713, type: 3}
+  maxLevel: 5
   costToUpgrade: 
   targetType: 2
   attackRangeRadInCell: 0
   effectiveRangeRadInCell: 0
-  castCost: 10
+  castCost: 0
   damageType: 1

@@ -17,11 +17,13 @@ public enum ECharacterActionState {
 
 struct SkillStatus {
 	public int curLevel;
-	public bool isPrimaryBattleSkill;
+	public int primarySkillBtnPos; // If -1 means it's not one of the primary skills
+	public bool isActiveSkill;
 
-	public SkillStatus(int cl, bool isPrimary) {
+	public SkillStatus(int cl, int primaryBtn, bool isActive) {
 		curLevel = 0;
-		isPrimaryBattleSkill = false;
+		primarySkillBtnPos = primaryBtn;
+		isActiveSkill = isActive;
 	}
 }
 
@@ -30,7 +32,7 @@ public class Character : MonoBehaviour {
 	[Header("UI Related")]
 	public StatsBarController healthBar;
 
-	private float waitForAttackAnimationTimeSec = 1.0f;
+	//private float waitForAttackAnimationTimeSec = 1.0f;
 	private SpriteRenderer _charSpriteRenderer;
 	public SpriteRenderer charSpriteRenderer {
 		get {
@@ -134,8 +136,11 @@ public class Character : MonoBehaviour {
 	public int attackRangeRadius;
 
 	[Header("Character Skills")]
+	public ActiveSkillSO curCharbasicAttack;
 	public ActiveSkillSO[] allPossibleActiveSkills;
 	private Dictionary<SkillSO, SkillStatus> allSkillDict;
+	private SkillSO[] AttackAndPrimaryActiveSkills = 
+		new SkillSO[(int)(EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount)];
 
 
 	private Animator charAnimator;
@@ -158,9 +163,38 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private EAttackAndPrimaryActiveSkillID _curChosenAttackMethod;
+	public EAttackAndPrimaryActiveSkillID curChosenAttackMethod {
+		get {
+			return _curChosenAttackMethod;
+		}
+	}
+
 	public void SetCurTargetCharacter(Character targetChar) {
 		_curTargetCharacter = targetChar;
 	}
+
+
+	/// <summary>
+	/// Set what is the current chosen attack method. Should be Basic Attack or any valid skill name
+	/// </summary>
+	/// <param name="attackMethod"></param>
+	/// <returns>true if successfully set up the method. false if set up fails</returns>
+	//public bool SetCurChosenAttackMethod(string attackMethod) {
+	//	bool isPrimarySkillName = false;
+	//	for (int i = 0; i < currentPrimaryActiveSkills.Length; i++) {
+	//		if (attackMethod.Equals(currentPrimaryActiveSkills[i].skillName)) {
+	//			isPrimarySkillName = true;
+	//		}
+	//	}
+
+	//	if (attackMethod.Equals("Basic Attack") || isPrimarySkillName) {
+	//		_curChosenAttackMethod = attackMethod;
+	//		return true;
+	//	} else {
+	//		return false;
+	//	}
+	//}
 
 	private void Awake() {
 		// Game Manager on start will switch character state to Idle so these following variables are needed before that being called
@@ -174,15 +208,22 @@ public class Character : MonoBehaviour {
 		charAnimator.SetBool("IsInActive", true);
 		charAnimator.SetBool("IsWalking", false);
 
+		for (int i = 0; i < (int)(EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount); i++) {
+			AttackAndPrimaryActiveSkills[i] = GameManager.defaultActiveSkill;
+		}
+		AttackAndPrimaryActiveSkills[(int)(EAttackAndPrimaryActiveSkillID.BasicAttack)] = curCharbasicAttack;
+
 		// Construct the dictionary for all the skills
 		allSkillDict = new Dictionary<SkillSO, SkillStatus>();
 		foreach (ActiveSkillSO activeSkillso in allPossibleActiveSkills) {
 			if (!allSkillDict.ContainsKey(activeSkillso)) {
-				allSkillDict.Add(activeSkillso, new SkillStatus(0, false));
-			} else {
+				allSkillDict.Add(activeSkillso, new SkillStatus(0, -1, true));
+			}
+			else {
 				Debug.LogWarning("Potential duplicate skill SO exist: " + activeSkillso.skillName);
 			}
 		}
+
 	}
 
 	// Start is called before the first frame update
@@ -394,9 +435,18 @@ public class Character : MonoBehaviour {
 	/// </summary>
 	public void PerformAttack() {
 		_hasStartAttack = true;
-		charAnimator.SetTrigger("BasicAttack");
+		Debug.Log("attack method: " + _curChosenAttackMethod);
+		if (_curChosenAttackMethod == EAttackAndPrimaryActiveSkillID.BasicAttack) {
+			charAnimator.SetTrigger("BasicAttack");
+		} else {
+			// If not basic attack, should be skill attack
+			// trigger corresponding animation
+			charAnimator.SetTrigger("BasicAttack");
+		}
+		int animationDuration = AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].TriggerAnimation();
 
-		StartCoroutine(WaitForBasicAttackToFinish());
+		StartCoroutine(WaitForAnimationToFinish(animationDuration));
+
 		//while (true) {
 		//	if (!charAnimator.GetCurrentAnimatorStateInfo(0).IsName("undead_skeleton_BasicAttack")) {
 		//		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
@@ -412,8 +462,6 @@ public class Character : MonoBehaviour {
 
 	public void TakeDamage(uint damageAmount) {
 		ECharacterActionState curState = _characterCurrentActionState;
-		Debug.Log(curState);
-
 		SwitchActionStateTo(ECharacterActionState.Hurting);
 		if (_health >= damageAmount) {
 			_health = _health - damageAmount;
@@ -425,11 +473,64 @@ public class Character : MonoBehaviour {
 		healthBar.SetStatsCurAmount((int)_health);
 	}
 
-	IEnumerator WaitForBasicAttackToFinish() {
-		yield return new WaitForSeconds(waitForAttackAnimationTimeSec);
-		// Damage the target
-		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
-		curTargetCharacter.TakeDamage(damage);
+	IEnumerator WaitForAnimationToFinish(int duration) {
+		// TODO: Depending on the current attack method, may want to use different time
+		yield return new WaitForSeconds(duration);
+		// Damage the target using current chosen attack method
+		AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].PerformActiveSkill(this, curTargetCharacter);
 		_attackDone = true;
+	}
+
+	public bool SetActiveSkillToPrimaryBattleSkill(string skillName, int skillBtnNumb) {
+		if (skillBtnNumb <= 0 || skillBtnNumb > (int)EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount) {
+			Debug.LogWarning("Invalid skill btn number " + skillBtnNumb);
+			return false;
+		}
+		SkillSO prevPrimeSkill = AttackAndPrimaryActiveSkills[skillBtnNumb];
+
+		bool skillExists = false;
+		foreach (KeyValuePair<SkillSO, SkillStatus> entry in allSkillDict) {
+			if (entry.Key.skillName.Equals(skillName)) {
+				skillExists = true;
+				// Update the button number in the skill dictionary
+				SkillStatus curStatus = allSkillDict[entry.Key];
+				curStatus.primarySkillBtnPos = skillBtnNumb;
+				allSkillDict[entry.Key] = curStatus;
+				// Put this skill into the list for primary active skill
+				AttackAndPrimaryActiveSkills[skillBtnNumb] = entry.Key;
+			}
+		}
+
+		// If we did successfully find the skill and has replaced that to primary
+		// we need to reset the previous primary skill, otherwise, the previous should remain same
+		if (skillExists) {
+			if (!prevPrimeSkill.skillName.Equals("DoNothing")) {
+				if (allSkillDict.ContainsKey(prevPrimeSkill)) {
+					SkillStatus curStatus = allSkillDict[prevPrimeSkill];
+					curStatus.primarySkillBtnPos = -1;
+					allSkillDict[prevPrimeSkill] = curStatus;
+				} else {
+					Debug.LogWarning("skill not exist?! " + prevPrimeSkill.skillName);
+				}
+
+			}
+			return true;
+		}
+		// we get here because the new skill does not exist.
+		return false;
+	}
+
+	/// <summary>
+	/// Return the primary skills in a list. This will exclude the basic attack
+	/// </summary>
+	/// <returns></returns>
+	public List<SkillSO> GetCurrentBasicAttackAndPrimaryBattleSkills() {
+		List<SkillSO> result = new List<SkillSO>();
+
+		for (int i = 0; i < (int)EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount; i++) {
+			result.Add(AttackAndPrimaryActiveSkills[i]);
+		}
+
+		return result;
 	}
 }

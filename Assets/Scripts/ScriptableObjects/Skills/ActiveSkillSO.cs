@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Scriptable Objects/Skill/ActiveSkill")]
-public class ActiveSkillSO : SkillSO {
+public abstract class ActiveSkillSO : SkillSO {
 	public int attackRangeRadInCell;
 	public int effectiveRangeRadInCell;
 	public int castCost;
