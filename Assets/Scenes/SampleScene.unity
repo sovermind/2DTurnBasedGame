@@ -2021,7 +2021,7 @@ MonoBehaviour:
   _actionPoints: 4
   _maxActionPoints: 4
   attackRangeRadius: 1
-  curCharbasicAttack: {fileID: 0}
+  curCharbasicAttack: {fileID: 11400000, guid: 45cbefb998501ff45a92bb998b8602b3, type: 2}
   allPossibleActiveSkills: []
 --- !u!1 &1258353111
 GameObject:
@@ -6176,12 +6176,12 @@ MonoBehaviour:
   _actionPoints: 4
   _maxActionPoints: 4
   attackRangeRadius: 1
-  curCharbasicAttack: {fileID: 0}
+  curCharbasicAttack: {fileID: 11400000, guid: 45cbefb998501ff45a92bb998b8602b3, type: 2}
   allPossibleActiveSkills:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 901dbd9e583a2534ab3251655d104c83, type: 2}
+  - {fileID: 11400000, guid: af946f1536f4a464b85a9cfab490c5b2, type: 2}
+  - {fileID: 11400000, guid: 69b26b29115ed9d4780720019813b875, type: 2}
+  - {fileID: 11400000, guid: 8d1bd686873d6ac40928798a0f67eb6e, type: 2}
 --- !u!4 &5426394837340175618 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5426394838096274685, guid: 6b34fdd8df5a48e4a8aa877c6047493d,

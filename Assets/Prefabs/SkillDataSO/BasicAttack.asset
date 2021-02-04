@@ -17,6 +17,7 @@ MonoBehaviour:
   maxLevel: 0
   costToUpgrade: 
   targetType: 2
+  skillAnimationDuration: 1
   attackRangeRadInCell: 0
   effectiveRangeRadInCell: 0
   castCost: 0

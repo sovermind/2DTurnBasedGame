@@ -24,6 +24,7 @@ public abstract class SkillSO : ScriptableObject {
 	public int maxLevel;
 	public int[] costToUpgrade;
 	public SkillTargetType targetType;
+	public float skillAnimationDuration;
 
 	private void Awake() {
 		skillName = this.name;
@@ -32,5 +33,13 @@ public abstract class SkillSO : ScriptableObject {
 
 	public abstract void PerformActiveSkill(Character attacker, Character defender);
 
-	public abstract int TriggerAnimation();
+	/// <summary>
+	/// By default, the skill animation is just basic attack
+	/// </summary>
+	/// <param name="charAnimator"></param>
+	/// <returns></returns>
+	public virtual float TriggerAnimation(Animator charAnimator) {
+		charAnimator.SetTrigger("BasicAttack");
+		return skillAnimationDuration;
+	}
 }

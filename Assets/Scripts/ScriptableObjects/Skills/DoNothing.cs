@@ -7,8 +7,4 @@ public class DoNothing : ActiveSkillSO {
 	public override void PerformActiveSkill(Character attacker, Character defender) {
 		return;
 	}
-
-	public override int TriggerAnimation() {
-		throw new System.NotImplementedException();
-	}
 }

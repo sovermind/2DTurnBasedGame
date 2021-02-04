@@ -8,7 +8,4 @@ public class WarriorExecute : ActiveSkillSO {
 		throw new System.NotImplementedException();
 	}
 
-	public override int TriggerAnimation() {
-		throw new System.NotImplementedException();
-	}
 }

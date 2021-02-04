@@ -7,8 +7,4 @@ public class WarriorHeadSmash : ActiveSkillSO {
 	public override void PerformActiveSkill(Character attacker, Character defender) {
 		throw new System.NotImplementedException();
 	}
-
-	public override int TriggerAnimation() {
-		throw new System.NotImplementedException();
-	}
 }

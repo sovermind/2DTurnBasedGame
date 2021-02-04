@@ -8,7 +8,4 @@ public class WarriorBleedBlade : ActiveSkillSO {
 	public override void PerformActiveSkill(Character attacker, Character defender) {
 	}
 
-	public override int TriggerAnimation() {
-		throw new System.NotImplementedException();
-	}
 }

@@ -174,28 +174,6 @@ public class Character : MonoBehaviour {
 		_curTargetCharacter = targetChar;
 	}
 
-
-	/// <summary>
-	/// Set what is the current chosen attack method. Should be Basic Attack or any valid skill name
-	/// </summary>
-	/// <param name="attackMethod"></param>
-	/// <returns>true if successfully set up the method. false if set up fails</returns>
-	//public bool SetCurChosenAttackMethod(string attackMethod) {
-	//	bool isPrimarySkillName = false;
-	//	for (int i = 0; i < currentPrimaryActiveSkills.Length; i++) {
-	//		if (attackMethod.Equals(currentPrimaryActiveSkills[i].skillName)) {
-	//			isPrimarySkillName = true;
-	//		}
-	//	}
-
-	//	if (attackMethod.Equals("Basic Attack") || isPrimarySkillName) {
-	//		_curChosenAttackMethod = attackMethod;
-	//		return true;
-	//	} else {
-	//		return false;
-	//	}
-	//}
-
 	private void Awake() {
 		// Game Manager on start will switch character state to Idle so these following variables are needed before that being called
 		// Thus these has to be in Awake() (or some function before GameManager's start())
@@ -215,14 +193,17 @@ public class Character : MonoBehaviour {
 
 		// Construct the dictionary for all the skills
 		allSkillDict = new Dictionary<SkillSO, SkillStatus>();
-		foreach (ActiveSkillSO activeSkillso in allPossibleActiveSkills) {
-			if (!allSkillDict.ContainsKey(activeSkillso)) {
-				allSkillDict.Add(activeSkillso, new SkillStatus(0, -1, true));
-			}
-			else {
-				Debug.LogWarning("Potential duplicate skill SO exist: " + activeSkillso.skillName);
+		if (allPossibleActiveSkills.Length > 0) {
+			foreach (ActiveSkillSO activeSkillso in allPossibleActiveSkills) {
+				if (!allSkillDict.ContainsKey(activeSkillso)) {
+					allSkillDict.Add(activeSkillso, new SkillStatus(0, -1, true));
+				}
+				else {
+					Debug.LogWarning("Potential duplicate skill SO exist: " + activeSkillso.skillName);
+				}
 			}
 		}
+
 
 	}
 
@@ -436,27 +417,16 @@ public class Character : MonoBehaviour {
 	public void PerformAttack() {
 		_hasStartAttack = true;
 		Debug.Log("attack method: " + _curChosenAttackMethod);
-		if (_curChosenAttackMethod == EAttackAndPrimaryActiveSkillID.BasicAttack) {
-			charAnimator.SetTrigger("BasicAttack");
-		} else {
-			// If not basic attack, should be skill attack
-			// trigger corresponding animation
-			charAnimator.SetTrigger("BasicAttack");
-		}
-		int animationDuration = AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].TriggerAnimation();
+		//if (_curChosenAttackMethod == EAttackAndPrimaryActiveSkillID.BasicAttack) {
+		//	charAnimator.SetTrigger("BasicAttack");
+		//} else {
+		//	// If not basic attack, should be skill attack
+		//	// trigger corresponding animation
+		//	charAnimator.SetTrigger("BasicAttack");
+		//}
+		float animationDuration = AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].TriggerAnimation(charAnimator);
 
 		StartCoroutine(WaitForAnimationToFinish(animationDuration));
-
-		//while (true) {
-		//	if (!charAnimator.GetCurrentAnimatorStateInfo(0).IsName("undead_skeleton_BasicAttack")) {
-		//		uint damage = BattleManager.CalculateBasicAttackDamage(this, curTargetCharacter);
-		//		curTargetCharacter.TakeDamage(damage);
-		//		_attackDone = true;
-		//		Debug.Log("attack animation done!!!!");
-		//		break;
-		//	}
-		//}
-
 
 	}
 
@@ -473,8 +443,7 @@ public class Character : MonoBehaviour {
 		healthBar.SetStatsCurAmount((int)_health);
 	}
 
-	IEnumerator WaitForAnimationToFinish(int duration) {
-		// TODO: Depending on the current attack method, may want to use different time
+	IEnumerator WaitForAnimationToFinish(float duration) {
 		yield return new WaitForSeconds(duration);
 		// Damage the target using current chosen attack method
 		AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].PerformActiveSkill(this, curTargetCharacter);
@@ -498,6 +467,9 @@ public class Character : MonoBehaviour {
 				allSkillDict[entry.Key] = curStatus;
 				// Put this skill into the list for primary active skill
 				AttackAndPrimaryActiveSkills[skillBtnNumb] = entry.Key;
+
+				// No need to proceed further
+				break;
 			}
 		}
 

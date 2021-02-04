@@ -146,7 +146,7 @@ public class GameManager : MonoBehaviour {
 		nextTurnBtn.onClick.AddListener(StartNextTurnButtonListener);
 
 		// TODO: Right now for testing purpose, will manually set up skills
-		bool setSkillSuccess = curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("Shields Up", 0);
+		bool setSkillSuccess = curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("WarriorShieldsUp", 1);
 		Debug.Log("set skill success: " + setSkillSuccess);
 
 		//curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("Bleed Blade", 1);
@@ -161,7 +161,8 @@ public class GameManager : MonoBehaviour {
 					btnNumb += btnName[j];
 				}
 			}
-			int btnN = -1;
+			// By default the btn is 0, which is the basic attack button
+			int btnN = 0;
 			if (btnNumb.Length > 0) {
 				btnN = int.Parse(btnNumb);
 			}
