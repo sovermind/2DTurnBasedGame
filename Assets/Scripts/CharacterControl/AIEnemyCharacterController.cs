@@ -11,14 +11,11 @@ public class AIEnemyCharacterController : MyCharacterController {
 	[SerializeField]
 	private float waitSecsThenTransit = 0.3f;
 
-	GameObject[] PlayerControlCharacters;
-
 	// Start is called before the first frame update
 	protected override void Start() {
 		base.Start();
-		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
-		if (PlayerControlCharacters.Length > 0) {
-			curCharactor.SetCurTargetCharacter(PlayerControlCharacters[0].GetComponent<Character>());
+		if (GameManager.GetInstance.GetAllPlayerControlCharacters().Count > 0) {
+			curCharactor.SetCurTargetCharacter(GameManager.GetInstance.GetAllPlayerControlCharacters()[0].GetComponent<Character>());
 		}
 	}
 
@@ -39,7 +36,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 
 	void AIEnemyCheckCharacterStates() {
 		// (TODO): Choose the appropriate target char
-		curCharactor.SetCurTargetCharacter(PlayerControlCharacters[0].GetComponent<Character>());
+		curCharactor.SetCurTargetCharacter(GameManager.GetInstance.GetAllPlayerControlCharacters()[0].GetComponent<Character>());
 
 		// Get the target world position
 		HexCell curTargetCell = curCharactor.curTargetCharacter.charCurHexCell;

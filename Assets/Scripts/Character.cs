@@ -17,13 +17,9 @@ public enum ECharacterActionState {
 
 struct SkillStatus {
 	public int curLevel;
-	public int primarySkillBtnPos; // If -1 means it's not one of the primary skills
-	public bool isActiveSkill;
 
-	public SkillStatus(int cl, int primaryBtn, bool isActive) {
+	public SkillStatus(int cl) {
 		curLevel = 0;
-		primarySkillBtnPos = primaryBtn;
-		isActiveSkill = isActive;
 	}
 }
 
@@ -78,7 +74,7 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-	
+
 	private string _curCharacterName;
 	[Header("Character properties")]
 	[SerializeField]
@@ -139,9 +135,8 @@ public class Character : MonoBehaviour {
 	public ActiveSkillSO curCharbasicAttack;
 	public ActiveSkillSO[] allPossibleActiveSkills;
 	private Dictionary<SkillSO, SkillStatus> allSkillDict;
-	private SkillSO[] AttackAndPrimaryActiveSkills = 
+	private SkillSO[] AttackAndPrimaryActiveSkills =
 		new SkillSO[(int)(EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount)];
-
 
 	private Animator charAnimator;
 
@@ -167,6 +162,10 @@ public class Character : MonoBehaviour {
 	public EAttackAndPrimaryActiveSkillID curChosenAttackMethod {
 		get {
 			return _curChosenAttackMethod;
+		}
+
+		set {
+			_curChosenAttackMethod = value;
 		}
 	}
 
@@ -196,7 +195,7 @@ public class Character : MonoBehaviour {
 		if (allPossibleActiveSkills.Length > 0) {
 			foreach (ActiveSkillSO activeSkillso in allPossibleActiveSkills) {
 				if (!allSkillDict.ContainsKey(activeSkillso)) {
-					allSkillDict.Add(activeSkillso, new SkillStatus(0, -1, true));
+					allSkillDict.Add(activeSkillso, new SkillStatus(0));
 				}
 				else {
 					Debug.LogWarning("Potential duplicate skill SO exist: " + activeSkillso.skillName);
@@ -417,17 +416,9 @@ public class Character : MonoBehaviour {
 	public void PerformAttack() {
 		_hasStartAttack = true;
 		Debug.Log("attack method: " + _curChosenAttackMethod);
-		//if (_curChosenAttackMethod == EAttackAndPrimaryActiveSkillID.BasicAttack) {
-		//	charAnimator.SetTrigger("BasicAttack");
-		//} else {
-		//	// If not basic attack, should be skill attack
-		//	// trigger corresponding animation
-		//	charAnimator.SetTrigger("BasicAttack");
-		//}
 		float animationDuration = AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].TriggerAnimation(charAnimator);
 
 		StartCoroutine(WaitForAnimationToFinish(animationDuration));
-
 	}
 
 	public void TakeDamage(uint damageAmount) {
@@ -457,14 +448,8 @@ public class Character : MonoBehaviour {
 		}
 		SkillSO prevPrimeSkill = AttackAndPrimaryActiveSkills[skillBtnNumb];
 
-		bool skillExists = false;
 		foreach (KeyValuePair<SkillSO, SkillStatus> entry in allSkillDict) {
 			if (entry.Key.skillName.Equals(skillName)) {
-				skillExists = true;
-				// Update the button number in the skill dictionary
-				SkillStatus curStatus = allSkillDict[entry.Key];
-				curStatus.primarySkillBtnPos = skillBtnNumb;
-				allSkillDict[entry.Key] = curStatus;
 				// Put this skill into the list for primary active skill
 				AttackAndPrimaryActiveSkills[skillBtnNumb] = entry.Key;
 
@@ -473,21 +458,6 @@ public class Character : MonoBehaviour {
 			}
 		}
 
-		// If we did successfully find the skill and has replaced that to primary
-		// we need to reset the previous primary skill, otherwise, the previous should remain same
-		if (skillExists) {
-			if (!prevPrimeSkill.skillName.Equals("DoNothing")) {
-				if (allSkillDict.ContainsKey(prevPrimeSkill)) {
-					SkillStatus curStatus = allSkillDict[prevPrimeSkill];
-					curStatus.primarySkillBtnPos = -1;
-					allSkillDict[prevPrimeSkill] = curStatus;
-				} else {
-					Debug.LogWarning("skill not exist?! " + prevPrimeSkill.skillName);
-				}
-
-			}
-			return true;
-		}
 		// we get here because the new skill does not exist.
 		return false;
 	}

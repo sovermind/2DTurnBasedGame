@@ -25,8 +25,8 @@ public class GameManager : MonoBehaviour {
 	private Grid mapGrid;
 	protected GameObject mapGridGO;
 
-	GameObject[] PlayerControlCharacters;
-	GameObject[] AIEnemyCharacters;
+	List<GameObject> PlayerControlCharacters;
+	List<GameObject> AIEnemyCharacters;
 
 	Character curActivePlayerCharacter;
 
@@ -69,6 +69,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	// TODO: May need to tune this parameter as the cursor seems not centered
 	private static Vector2 cursorHotSpot = Vector2.zero;
 
 	public void SetGameState(EGameState newState) {
@@ -120,6 +121,14 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	public List<GameObject> GetAllPlayerControlCharacters() {
+		return PlayerControlCharacters;
+	}
+
+	public List<GameObject> GetAllAIEnemyCharacters() {
+		return AIEnemyCharacters;
+	}
+
 	private void Start() {
 		mainCam = Camera.main;
 		mapGridGO = GameObject.Find("WorldMapGrid");
@@ -127,12 +136,13 @@ public class GameManager : MonoBehaviour {
 		if (mapGridGO != null) {
 			mapGrid = mapGridGO.GetComponent<Grid>();
 		}
-
-		PlayerControlCharacters = GameObject.FindGameObjectsWithTag("Player");
-		AIEnemyCharacters = GameObject.FindGameObjectsWithTag("Enemy");
+		PlayerControlCharacters = new List<GameObject>();
+		AIEnemyCharacters = new List<GameObject>();
+		PlayerControlCharacters.AddRange(GameObject.FindGameObjectsWithTag("Player"));
+		AIEnemyCharacters.AddRange(GameObject.FindGameObjectsWithTag("Enemy"));
 
 		// Make the first character in the player controlled characters array to be active
-		if (PlayerControlCharacters.Length > 0) {
+		if (PlayerControlCharacters.Count > 0) {
 			curActivePlayerCharacter = PlayerControlCharacters[0].GetComponent<Character>();
 			curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
 		} else {
@@ -300,7 +310,12 @@ public class GameManager : MonoBehaviour {
 	/// <param name="btnNumb">0 - basic attack; 1-4 correspond to skill 1-4</param>
 	public void SkillAttackButtonListener(int btnNumb) {
 		Debug.Log("btn pressed " + btnNumb);
+		if (btnNumb < 0 || btnNumb > (int)(EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount)) {
+			Debug.LogWarning("Invalid button number passed to call back " + btnNumb);
+			return;
+		}
 		Cursor.SetCursor(shootingCursor, cursorHotSpot, CursorMode.Auto);
+		curActivePlayerCharacter.curChosenAttackMethod = (EAttackAndPrimaryActiveSkillID)btnNumb;
 		curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Attacking);
 	}
 

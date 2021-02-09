@@ -6,13 +6,11 @@ using System;
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Character))]
 public class PlayerCharacterController : MyCharacterController {
-	GameObject[] AllEnemyCharacters;
 	List<HexCell> allPossibleDest;
 
 	// Start is called before the first frame update
 	protected override void Start() {
 		base.Start();
-		AllEnemyCharacters = GameObject.FindGameObjectsWithTag("Enemy");
 		allPossibleDest = new List<HexCell>();
 	}
 
@@ -70,7 +68,7 @@ public class PlayerCharacterController : MyCharacterController {
 					}
 
 					// Check if the click cell has enemy character
-					foreach (GameObject enemyGO in AllEnemyCharacters) {
+					foreach (GameObject enemyGO in GameManager.GetInstance.GetAllAIEnemyCharacters()) {
 						Vector3 curEnemyPos = enemyGO.transform.position;
 						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
 						if (curEnemyCell.Equals(clickCell)) {
@@ -115,24 +113,38 @@ public class PlayerCharacterController : MyCharacterController {
 				// For now, we only have basic attack, later should have different attack types
 
 				if (GameManager.isLeftClickUpGamePlay) {
-					bool isClickCellValidEnemy = false;
+					// Check if the click is within a valid target
+					bool isClickCellValid = false;
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
 					List<HexCell> allAttackableCells = curCharactor.GetAllAttackableCells();
 					// Check if the click cell has enemy character
-					foreach (GameObject enemyGO in AllEnemyCharacters) {
+					foreach (GameObject enemyGO in GameManager.GetInstance.GetAllAIEnemyCharacters()) {
 						Vector3 curEnemyPos = enemyGO.transform.position;
 						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
 						if (curEnemyCell.Equals(clickCell)) {
 							foreach (HexCell curAttackableCell in allAttackableCells) {
 								if (curAttackableCell.Equals(curEnemyCell)) {
-									isClickCellValidEnemy = true;
+									isClickCellValid = true;
 									curCharactor.SetCurTargetCharacter(enemyGO.GetComponent<Character>());
 									break;
 								}
 							}
 						}
 					}
-					if (isClickCellValidEnemy) {
+					if (!isClickCellValid) {
+						//foreach (GameObject ally in AllEnemyCharacters) {
+						//	Vector3 curEnemyPos = enemyGO.transform.position;
+						//	HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
+						//	if (curEnemyCell.Equals(clickCell)) {
+						//		foreach (HexCell curAttackableCell in allAttackableCells) {
+						//			if (curAttackableCell.Equals(curEnemyCell)) {
+						//				isClickCellValid = true;
+						//				curCharactor.SetCurTargetCharacter(enemyGO.GetComponent<Character>());
+						//				break;
+						//			}
+						//		}
+						//	}
+						//}
 						curCharactor.PerformAttack();
 					}
 
