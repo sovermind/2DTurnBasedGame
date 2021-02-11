@@ -25,6 +25,10 @@ public abstract class SkillSO : ScriptableObject {
 	public int[] costToUpgrade;
 	public SkillTargetType targetType;
 	public float skillAnimationDuration;
+	public int attackRangeRadInCell;
+	public int effectiveRangeRadInCell;
+	public int castCost;
+	public SkillDamageType damageType;
 
 	private void Awake() {
 		skillName = this.name;

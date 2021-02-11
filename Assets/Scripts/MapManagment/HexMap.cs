@@ -351,14 +351,6 @@ public class HexMap {
 				}
 				int totalPathCost = Int32.MaxValue;
 				navHelper.ComputePath(curCell, testCell, ref totalPathCost);
-				//HexCell tmpCell = new HexCell(6, 7, -13);
-				//if (testCell.Equals(tmpCell)) {
-				//	Debug.Log("try to compute path to " + tmpCell.hexCellPos + " and path cost: " + totalPathCost);
-				//	List<HexCell> curPath = navHelper.GetCurFullPath();
-				//	for (int jj = 0; jj < curPath.Count; jj++) {
-				//		Debug.Log("path points " + jj + ": " + curPath[jj].hexCellPos);
-				//	}
-				//}
 				if (totalPathCost <= availableAP) {
 					allReachableCells.Add(testCell);
 					//Debug.Log("can reach: " + mapStorage[i][j].hexCellPos);
@@ -368,6 +360,17 @@ public class HexMap {
 
 
 		return allReachableCells;
+	}
+
+	public GameObject DoesHexCellContainGO(HexCell cell, List<GameObject> GOList) {
+		foreach (GameObject curGO in GOList) {
+			Vector3 curGOPos = curGO.transform.position;
+			HexCell curGOCell = GetHexCellFromWorldPos(curGOPos);
+			if (curGOCell.Equals(cell)) {
+				return curGO;
+			}
+		}
+		return null;
 	}
 
 }

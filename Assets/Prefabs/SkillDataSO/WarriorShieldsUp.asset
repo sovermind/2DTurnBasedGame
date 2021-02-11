@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7cfdab0615d4744491b1e435b1608f4, type: 3}
   m_Name: WarriorShieldsUp
   m_EditorClassIdentifier: 
-  skillName: WarriorSheldsUp
+  skillName: WarriorShieldsUp
   skillIcon: {fileID: 21300000, guid: 25af46234cc1f5449a647ea41e0a77b0, type: 3}
   maxLevel: 5
   costToUpgrade: 
   targetType: 4
+  skillAnimationDuration: 1
   attackRangeRadInCell: 0
   effectiveRangeRadInCell: 0
   castCost: 0

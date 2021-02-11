@@ -114,38 +114,23 @@ public class PlayerCharacterController : MyCharacterController {
 
 				if (GameManager.isLeftClickUpGamePlay) {
 					// Check if the click is within a valid target
-					bool isClickCellValid = false;
+					
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
-					List<HexCell> allAttackableCells = curCharactor.GetAllAttackableCells();
-					// Check if the click cell has enemy character
-					foreach (GameObject enemyGO in GameManager.GetInstance.GetAllAIEnemyCharacters()) {
-						Vector3 curEnemyPos = enemyGO.transform.position;
-						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
-						if (curEnemyCell.Equals(clickCell)) {
-							foreach (HexCell curAttackableCell in allAttackableCells) {
-								if (curAttackableCell.Equals(curEnemyCell)) {
-									isClickCellValid = true;
-									curCharactor.SetCurTargetCharacter(enemyGO.GetComponent<Character>());
-									break;
-								}
-							}
+					//List<HexCell> allAttackableCells = curCharactor.GetAllAttackableCells();
+
+					// Check if the click cell is an enemy or ally. Then set the target char.
+					GameObject chosenEnemy = HexMap.hexMap.DoesHexCellContainGO(clickCell, GameManager.GetInstance.GetAllAIEnemyCharacters());
+					if (chosenEnemy != null) {
+						curCharactor.SetCurTargetCharacter(chosenEnemy.GetComponent<Character>());
+					} else {
+						GameObject chosenAlly = HexMap.hexMap.DoesHexCellContainGO(clickCell, GameManager.GetInstance.GetAllPlayerControlCharacters());
+						if (chosenAlly != null) {
+							curCharactor.SetCurTargetCharacter(chosenAlly.GetComponent<Character>());
 						}
 					}
-					if (!isClickCellValid) {
-						//foreach (GameObject ally in AllEnemyCharacters) {
-						//	Vector3 curEnemyPos = enemyGO.transform.position;
-						//	HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
-						//	if (curEnemyCell.Equals(clickCell)) {
-						//		foreach (HexCell curAttackableCell in allAttackableCells) {
-						//			if (curAttackableCell.Equals(curEnemyCell)) {
-						//				isClickCellValid = true;
-						//				curCharactor.SetCurTargetCharacter(enemyGO.GetComponent<Character>());
-						//				break;
-						//			}
-						//		}
-						//	}
-						//}
-						curCharactor.PerformAttack();
+					// If not able to perform attack, switch back to Idle
+					if (!curCharactor.PerformAttack()) {
+						curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
 					}
 
 					GameManager.ChangeMouseCursorToDefault();

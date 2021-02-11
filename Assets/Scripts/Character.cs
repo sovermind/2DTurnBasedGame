@@ -129,11 +129,9 @@ public class Character : MonoBehaviour {
 		}
 	}
 
-	public int attackRangeRadius;
-
 	[Header("Character Skills")]
-	public ActiveSkillSO curCharbasicAttack;
-	public ActiveSkillSO[] allPossibleActiveSkills;
+	public SkillSO curCharbasicAttack;
+	public SkillSO[] allPossibleActiveSkills;
 	private Dictionary<SkillSO, SkillStatus> allSkillDict;
 	private SkillSO[] AttackAndPrimaryActiveSkills =
 		new SkillSO[(int)(EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount)];
@@ -170,6 +168,10 @@ public class Character : MonoBehaviour {
 	}
 
 	public void SetCurTargetCharacter(Character targetChar) {
+		if (targetChar == null) {
+			Debug.LogWarning("Set target character is null");
+			return;
+		}
 		_curTargetCharacter = targetChar;
 	}
 
@@ -193,7 +195,7 @@ public class Character : MonoBehaviour {
 		// Construct the dictionary for all the skills
 		allSkillDict = new Dictionary<SkillSO, SkillStatus>();
 		if (allPossibleActiveSkills.Length > 0) {
-			foreach (ActiveSkillSO activeSkillso in allPossibleActiveSkills) {
+			foreach (SkillSO activeSkillso in allPossibleActiveSkills) {
 				if (!allSkillDict.ContainsKey(activeSkillso)) {
 					allSkillDict.Add(activeSkillso, new SkillStatus(0));
 				}
@@ -380,14 +382,12 @@ public class Character : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Calculate all attackable cells. A cell is attackable if
-	/// 1. it is within the attack range.
-	/// 2. there is no blocking cells between curCharCell and the target cell
+	/// Calculate all attackable cells. This should depend on the current chosen attack method
 	/// </summary>
 	/// <returns></returns>
 	public List<HexCell> GetAllAttackableCells() {
 		// First get all potential cells within attack range
-		List<HexCell> allPotentialAttackableCells = HexMap.hexMap.AllCellsWithinRadius(charCurHexCell, attackRangeRadius);
+		List<HexCell> allPotentialAttackableCells = HexMap.hexMap.AllCellsWithinRadius(charCurHexCell, AttackAndPrimaryActiveSkills[(int)curChosenAttackMethod].attackRangeRadInCell);
 
 		// (TODO): Then check if there's obstacles in between
 
@@ -410,15 +410,59 @@ public class Character : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Perform the attack option. Currently only the basic attack. Later should has an input parameter with attack type
-	/// The character controller should tell the character which attack to perform
+	/// Perform the attack option, includes basic attack, skills. Depend on attack method and cur target character, execute different actions
 	/// </summary>
-	public void PerformAttack() {
+	public bool PerformAttack() {
+		bool okToProcceed = false;
+		// First check if the attack target type matches the chosen attack method
+		// You don't want to attack ally!
+		SkillSO chosenMethod = AttackAndPrimaryActiveSkills[(int)curChosenAttackMethod];
+		switch (chosenMethod.targetType) {
+			case SkillTargetType.Ally:
+				if (IsMyAlly(curTargetCharacter)) {
+					okToProcceed = true;
+				}
+				break;
+			case SkillTargetType.Enemy:
+				if (!IsMyAlly(curTargetCharacter)) {
+					okToProcceed = true;
+				}
+				break;
+			case SkillTargetType.Self:
+				if (curTargetCharacter.charCurHexCell.Equals(curTargetCharacter.charCurHexCell)) {
+					okToProcceed = true;
+				}
+				break;
+			default:
+				break;
+		}
+
+		if (!okToProcceed) {
+			Debug.Log("Illegal attack type, skill target type: " + chosenMethod.targetType + ", target tag: " + curTargetCharacter.tag);
+			return false;
+		}
+
+		okToProcceed = false;
+		List<HexCell> allAttackableCells = GetAllAttackableCells();
+		foreach (HexCell cell in allAttackableCells) {
+			if (cell.Equals(curTargetCharacter.charCurHexCell)) {
+				okToProcceed = true;
+				break;
+			}
+		}
+		
+		if (!okToProcceed) {
+			Debug.Log("Target at cell: " + curTargetCharacter.charCurHexCell.hexCellPos + " not within attackable cells");
+			return false;
+		}
+
+		// Now it's ok to perform the action on the target
 		_hasStartAttack = true;
 		Debug.Log("attack method: " + _curChosenAttackMethod);
-		float animationDuration = AttackAndPrimaryActiveSkills[(int)(curChosenAttackMethod)].TriggerAnimation(charAnimator);
+		float animationDuration = chosenMethod.TriggerAnimation(charAnimator);
 
 		StartCoroutine(WaitForAnimationToFinish(animationDuration));
+		return true;
 	}
 
 	public void TakeDamage(uint damageAmount) {
@@ -474,5 +518,9 @@ public class Character : MonoBehaviour {
 		}
 
 		return result;
+	}
+
+	public bool IsMyAlly(Character chara) {
+		return this.tag == chara.tag;
 	}
 }
