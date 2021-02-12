@@ -168,10 +168,10 @@ public class Character : MonoBehaviour {
 	}
 
 	public void SetCurTargetCharacter(Character targetChar) {
-		if (targetChar == null) {
-			Debug.LogWarning("Set target character is null");
-			return;
-		}
+		//if (targetChar == null) {
+		//	Debug.LogWarning("Set target character is null");
+		//	return;
+		//}
 		_curTargetCharacter = targetChar;
 	}
 
@@ -413,6 +413,10 @@ public class Character : MonoBehaviour {
 	/// Perform the attack option, includes basic attack, skills. Depend on attack method and cur target character, execute different actions
 	/// </summary>
 	public bool PerformAttack() {
+		if (curTargetCharacter == null) {
+			Debug.Log("No target character! No action performed!");
+			return false;
+		}
 		bool okToProcceed = false;
 		// First check if the attack target type matches the chosen attack method
 		// You don't want to attack ally!

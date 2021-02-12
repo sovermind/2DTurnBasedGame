@@ -130,6 +130,7 @@ public class PlayerCharacterController : MyCharacterController {
 					}
 					// If not able to perform attack, switch back to Idle
 					if (!curCharactor.PerformAttack()) {
+						curCharactor.SetCurTargetCharacter(null);
 						curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
 					}
 

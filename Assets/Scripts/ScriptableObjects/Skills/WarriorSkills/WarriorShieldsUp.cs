@@ -6,6 +6,6 @@ using UnityEngine;
 public class WarriorShieldsUp : SkillSO {
 
 	public override void PerformActiveSkill(Character attacker, Character defender) {
-
+		// Shield up should add temparory defense
 	}
 }

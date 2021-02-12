@@ -156,7 +156,7 @@ public class GameManager : MonoBehaviour {
 		nextTurnBtn.onClick.AddListener(StartNextTurnButtonListener);
 
 		// TODO: Right now for testing purpose, will manually set up skills
-		bool setSkillSuccess = curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("WarriorShieldsUp", 1);
+		bool setSkillSuccess = curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("WarriorBleedBlade", 1);
 		Debug.Log("set skill success: " + setSkillSuccess);
 
 		//curActivePlayerCharacter.SetActiveSkillToPrimaryBattleSkill("Bleed Blade", 1);
