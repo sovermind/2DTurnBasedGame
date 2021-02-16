@@ -28,7 +28,6 @@ public class Character : MonoBehaviour {
 	[Header("UI Related")]
 	public StatsBarController healthBar;
 
-	//private float waitForAttackAnimationTimeSec = 1.0f;
 	private SpriteRenderer _charSpriteRenderer;
 	public SpriteRenderer charSpriteRenderer {
 		get {

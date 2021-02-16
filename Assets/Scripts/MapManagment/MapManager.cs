@@ -87,7 +87,7 @@ public class MapManager : MonoBehaviour{
 			// Add tile cost into the cost map
 			AddTileMapCosts(curTilemap);
 		}
-
+		Debug.Log("xmin: " + xMin + ", xmax: " + xMax);
 		Vector3 worldPosMin = mapGrid.CellToWorld(new Vector3Int(xMin, yMin, 0));
 		int widthInCell = xMax - xMin;
 		int heightInCell = yMax - yMin;
@@ -120,6 +120,10 @@ public class MapManager : MonoBehaviour{
 	static public int GetTileCostFromHexCell(HexCell cell) {
 		if (!hasBeenInitialized) {
 			return 0;
+		}
+
+		if (mapGrid == null) {
+			return int.MaxValue;
 		}
 
 		// If the cell quested is outof map
@@ -271,5 +275,9 @@ public class MapManager : MonoBehaviour{
 			}
 
 		}
+	}
+
+	public void GetMapBoundingBox() {
+		
 	}
 }

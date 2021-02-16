@@ -28,7 +28,12 @@ public class GameManager : MonoBehaviour {
 	List<GameObject> PlayerControlCharacters;
 	List<GameObject> AIEnemyCharacters;
 
-	Character curActivePlayerCharacter;
+	Character _curActivePlayerCharacter;
+	public Character curActivePlayerCharacter {
+		get {
+			return _curActivePlayerCharacter;
+		}
+	}
 
 	[SerializeField]
 	public Button nextTurnButton;
@@ -80,17 +85,19 @@ public class GameManager : MonoBehaviour {
 		// Check from which state to which state
 		// All enemy finished, give control back to player
 		if (_gameState == EGameState.AIEnemyTurn && newState == EGameState.PlayerTurn) {
+			UIDisplayController.SwitchTurnTo(EGameState.PlayerTurn);
 			foreach (GameObject curEnemyGO in AIEnemyCharacters) {
 				AIEnemyCharacterController curEnemyCharacterController = curEnemyGO.GetComponent<AIEnemyCharacterController>();
 				curEnemyCharacterController.ControllerEndThisTurn();
 			}
 			// Reset the current active player character, and switch that to Idle state
-			curActivePlayerCharacter = PlayerControlCharacters[0].GetComponent<Character>();
+			SetCurActivePlayerCharacter(PlayerControlCharacters[0].GetComponent<Character>());
 			curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
 		}
 
 		// Player has finished, give control to AI enemy
 		if (_gameState == EGameState.PlayerTurn && newState == EGameState.AIEnemyTurn) {
+			UIDisplayController.SwitchTurnTo(EGameState.AIEnemyTurn);
 			foreach (GameObject curPlayerGO in PlayerControlCharacters) {
 				PlayerCharacterController curPlayerCharController = curPlayerGO.GetComponent<PlayerCharacterController>();
 				curPlayerCharController.ControllerEndThisTurn();
@@ -129,6 +136,12 @@ public class GameManager : MonoBehaviour {
 		return AIEnemyCharacters;
 	}
 
+	public void SetCurActivePlayerCharacter(Character chara) {
+		_curActivePlayerCharacter = chara;
+		// Move the camera to focus at the character
+		//mainCam.transform.position = new Vector3(chara.transform.position.x, chara.transform.position.y, mainCam.transform.position.z);
+	}
+
 	private void Start() {
 		mainCam = Camera.main;
 		mapGridGO = GameObject.Find("WorldMapGrid");
@@ -143,7 +156,7 @@ public class GameManager : MonoBehaviour {
 
 		// Make the first character in the player controlled characters array to be active
 		if (PlayerControlCharacters.Count > 0) {
-			curActivePlayerCharacter = PlayerControlCharacters[0].GetComponent<Character>();
+			SetCurActivePlayerCharacter(PlayerControlCharacters[0].GetComponent<Character>());
 			curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
 		} else {
 			Debug.LogWarning("No player controlled character found?!");
@@ -243,6 +256,7 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
+		// TODO: Maybe also need to check if all players are inactive state. (If still in hurting state, it will being paused)
 		if (waitForActiveEnemies.Count == 0) {
 			SetGameState(EGameState.PlayerTurn);
 		} else {
@@ -282,7 +296,7 @@ public class GameManager : MonoBehaviour {
 					// If not allowed, meaning current active character is doing something, don't switch current active character
 					if (curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.InActive)) {
 						// update the current active player character
-						curActivePlayerCharacter = curPlayerCharacter;
+						SetCurActivePlayerCharacter(curPlayerCharacter);
 						if (curActivePlayerCharacter.characterCurrentActionState == ECharacterActionState.InActive) {
 							curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
 						} else {
