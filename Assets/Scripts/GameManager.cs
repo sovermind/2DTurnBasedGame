@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour {
 	private Camera mainCam;
 	private Grid mapGrid;
 	protected GameObject mapGridGO;
+	private bool waitingToStartEnemyTurn; // When the next turn button being pressed, but was not ready to start enemy turn yet
 
 	List<GameObject> PlayerControlCharacters;
 	List<GameObject> AIEnemyCharacters;
@@ -143,6 +144,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void Start() {
+		waitingToStartEnemyTurn = false;
 		mainCam = Camera.main;
 		mapGridGO = GameObject.Find("WorldMapGrid");
 		mapGrid = new Grid();
@@ -232,15 +234,44 @@ public class GameManager : MonoBehaviour {
 				IssueCommandToEnemies();
 				break;
 			case EGameState.PlayerTurn:
-				
+
 				if (GameManager.isLeftClickUpGamePlay) {
 					IssueCommandToPlayers();
 				}
-				
+
+				CheckToStartEnemyTurn();
+
 				break;
 			default:
 				break;
 		}
+	}
+
+	/// <summary>
+	/// Check to see if it's ok to start enemy's turn
+	/// currently these need to be satisfied to start enemy's turn:
+	/// 1. NextTurn button being pressed
+	/// 2. all enemy is inactive state means all animation of enemy are finished
+	/// </summary>
+	private void CheckToStartEnemyTurn() {
+		bool okToStartEnemyTurn = true;
+		if (waitingToStartEnemyTurn) {
+			// Need to check if it's allowed to start the next turn
+			// Has all the enemy return to inactive state?
+			foreach (GameObject AIEnemyGO in AIEnemyCharacters) {
+				Character enemy = AIEnemyGO.GetComponent<Character>();
+				if (enemy.characterCurrentActionState != ECharacterActionState.InActive) {
+					okToStartEnemyTurn = false;
+					break;
+				}
+			}
+
+			if (okToStartEnemyTurn) {
+				SetGameState(EGameState.AIEnemyTurn);
+				waitingToStartEnemyTurn = false;
+			}
+		}
+
 	}
 
 	/// <summary>
@@ -256,16 +287,26 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
-		// TODO: Maybe also need to check if all players are inactive state. (If still in hurting state, it will being paused)
-		if (waitForActiveEnemies.Count == 0) {
+		// need to check if all players are inactive state. (If still in hurting state, the animation will being paused)
+		bool waitForPlayerCharacterToBeInactive = false;
+		foreach (GameObject playerChar in PlayerControlCharacters) {
+			Character pc = playerChar.GetComponent<Character>();
+			if (pc.characterCurrentActionState != ECharacterActionState.InActive) {
+				waitForPlayerCharacterToBeInactive = true;
+				break;
+			}
+		}
+
+		if (waitForActiveEnemies.Count == 0 && !waitForPlayerCharacterToBeInactive) {
 			SetGameState(EGameState.PlayerTurn);
-		} else {
+		} else if (waitForActiveEnemies.Count != 0) {
 			bool startNextEnemy = true;
 			// Now all the waiting enemies should has not finish this turn. So if someone has started, meaning it's doing some action
 			// wait for all waiting enemies not start this turn, then send one of them to be active
 			foreach (Character curWaitEnemy in waitForActiveEnemies) {
 				if (curWaitEnemy.hasStartedThisTurn) {
 					startNextEnemy = false;
+					break;
 				}
 			}
 			if (startNextEnemy) {
@@ -313,7 +354,9 @@ public class GameManager : MonoBehaviour {
 
 	public void StartNextTurnButtonListener() {
 		if (_gameState == EGameState.PlayerTurn) {
-			SetGameState(EGameState.AIEnemyTurn);
+
+			waitingToStartEnemyTurn = true;
+			//SetGameState(EGameState.AIEnemyTurn);
 			// Need to reset all variables that player and enemy have
 		}
 	}
