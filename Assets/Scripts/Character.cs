@@ -135,6 +135,8 @@ public class Character : MonoBehaviour {
 	private SkillSO[] AttackAndPrimaryActiveSkills =
 		new SkillSO[(int)(EAttackAndPrimaryActiveSkillID.AttackAndPrimaryActiveSkillCount)];
 
+	public BuffController charBuffController;
+
 	private Animator charAnimator;
 
 	private HexCell _charCurHexCell;
@@ -204,7 +206,7 @@ public class Character : MonoBehaviour {
 			}
 		}
 
-
+		charBuffController = new BuffController();
 	}
 
 	// Start is called before the first frame update
@@ -432,7 +434,7 @@ public class Character : MonoBehaviour {
 				}
 				break;
 			case SkillTargetType.Self:
-				if (curTargetCharacter.charCurHexCell.Equals(curTargetCharacter.charCurHexCell)) {
+				if (charCurHexCell.Equals(curTargetCharacter.charCurHexCell)) {
 					okToProcceed = true;
 				}
 				break;
@@ -445,6 +447,7 @@ public class Character : MonoBehaviour {
 			return false;
 		}
 
+		// Now the attack type must be ok, we need to check if it's within attack range
 		okToProcceed = false;
 		List<HexCell> allAttackableCells = GetAllAttackableCells();
 		foreach (HexCell cell in allAttackableCells) {

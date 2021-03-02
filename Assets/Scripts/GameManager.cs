@@ -26,6 +26,13 @@ public class GameManager : MonoBehaviour {
 	protected GameObject mapGridGO;
 	private bool waitingToStartEnemyTurn; // When the next turn button being pressed, but was not ready to start enemy turn yet
 
+	private int _gameTurnCount;
+	public int gameTurnCount {
+		get {
+			return _gameTurnCount;
+		}
+	}
+
 	List<GameObject> PlayerControlCharacters;
 	List<GameObject> AIEnemyCharacters;
 
@@ -87,6 +94,8 @@ public class GameManager : MonoBehaviour {
 		// All enemy finished, give control back to player
 		if (_gameState == EGameState.AIEnemyTurn && newState == EGameState.PlayerTurn) {
 			UIDisplayController.SwitchTurnTo(EGameState.PlayerTurn);
+			// Update turn counter, now assume player starts the turn
+			_gameTurnCount = _gameTurnCount + 1;
 			foreach (GameObject curEnemyGO in AIEnemyCharacters) {
 				AIEnemyCharacterController curEnemyCharacterController = curEnemyGO.GetComponent<AIEnemyCharacterController>();
 				curEnemyCharacterController.ControllerEndThisTurn();
@@ -144,6 +153,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void Start() {
+		_gameTurnCount = 1;
 		waitingToStartEnemyTurn = false;
 		mainCam = Camera.main;
 		mapGridGO = GameObject.Find("WorldMapGrid");

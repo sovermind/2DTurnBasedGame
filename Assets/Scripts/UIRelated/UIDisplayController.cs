@@ -15,19 +15,27 @@ public class UIDisplayController : MonoBehaviour {
 	private static bool isSwitchingState = false;
 	private Animator switchTurnAnimator;
 
+	private GameObject turnCountDisplay;
+	private TextMeshProUGUI turnCountTMP;
+
 	private void Start() {
 		turnMessagePanel = GameObject.Find("TurnMessagePanel");
 		turnMessage = turnMessagePanel.transform.GetChild(0).gameObject;
 		turnMessageTMP = turnMessage.GetComponent<TextMeshProUGUI>();
 
+		turnCountDisplay = GameObject.Find("TurnCount");
+		turnCountTMP = turnCountDisplay.GetComponent<TextMeshProUGUI>();
+
 		switchTurnAnimator = turnMessage.GetComponent<Animator>();
 	}
 
 	private void Update() {
-		//turnMessageTMP.SetText("some random text");
 		if (isSwitchingState) {
 			StartCoroutine(WaitForSwitchTurnAnimation());
 		}
+
+		// Update turn count
+		turnCountTMP.SetText("Turn: " + GameManager.GetInstance.gameTurnCount);
 	}
 
 	public static bool SwitchTurnTo(EGameState newState) {

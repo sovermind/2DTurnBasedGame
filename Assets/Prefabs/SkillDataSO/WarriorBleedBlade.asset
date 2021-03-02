@@ -22,3 +22,6 @@ MonoBehaviour:
   effectiveRangeRadInCell: 0
   castCost: 0
   damageType: 1
+  initialDamage: 10
+  bleedDamagePerTurn: 5
+  initialDamageAttackerMultipler: 0.6
