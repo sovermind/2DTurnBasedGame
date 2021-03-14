@@ -82,9 +82,6 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	// TODO: May need to tune this parameter as the cursor seems not centered
-	private static Vector2 cursorHotSpot = Vector2.zero;
-
 	public void SetGameState(EGameState newState) {
 		if (_gameState == newState) {
 			return;
@@ -381,12 +378,13 @@ public class GameManager : MonoBehaviour {
 			Debug.LogWarning("Invalid button number passed to call back " + btnNumb);
 			return;
 		}
-		Cursor.SetCursor(shootingCursor, cursorHotSpot, CursorMode.Auto);
+		Vector2 hotSpot = new Vector2(shootingCursor.width/2, shootingCursor.height/2);
+		Cursor.SetCursor(shootingCursor, hotSpot, CursorMode.Auto);
 		curActivePlayerCharacter.curChosenAttackMethod = (EAttackAndPrimaryActiveSkillID)btnNumb;
 		curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Attacking);
 	}
 
 	public static void ChangeMouseCursorToDefault() {
-		Cursor.SetCursor(null, cursorHotSpot, CursorMode.Auto);
+		Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
 	}
 }
