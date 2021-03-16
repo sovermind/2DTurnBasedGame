@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class BleedingBuff : BuffEntity {
 	private int _damagePerTurn;
+	public int damagePerTurn {
+		get {
+			return _damagePerTurn;
+		}
+	}
 
 	/// <summary>
 	/// Constructor to create a bleeding buff.
@@ -19,12 +24,20 @@ public class BleedingBuff : BuffEntity {
 	public override bool ApplyBuffEffect(Character curChar) {
 		// First make sure the bleeding effect only apply on turn end
 		if (buffType != EBuffType.ApplyOnTurnEnd) {
-			Debug.LogWarning("Buff type and apply affect method not same!");
+			Debug.LogWarning("Bleeding Buff not apply on turn end!");
 			return false;
 		}
 
 		// let the character take the damage
 		curChar.TakeDamage((uint)_damagePerTurn);
 		return true;
+	}
+
+	public override void StackBuff(BuffEntity newBuff) {
+		base.StackBuff(newBuff);
+		// The remaining turns add the new total duration turns
+		_remainingTurns = remainingTurns + newBuff.totalDurationTurns;
+		// The damage per turn will increase 50%
+		_damagePerTurn = (int)(_damagePerTurn * 1.5f);
 	}
 }

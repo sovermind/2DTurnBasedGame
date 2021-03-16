@@ -10,14 +10,14 @@ public enum EBuffType {
 }
 
 public class BuffEntity {
-	private string _buffName;
+	protected string _buffName;
 	public string buffName {
 		get {
-			return buffName;
+			return _buffName;
 		}
 	}
 
-	private int _remainingTurns;
+	protected int _remainingTurns;
 	public int remainingTurns {
 		get {
 			return _remainingTurns;
@@ -63,5 +63,21 @@ public class BuffEntity {
 	/// <returns>true if apply effect successfully; false if not</returns>
 	public virtual bool ApplyBuffEffect(Character curChar) {
 		return false;
+	}
+
+	/// <summary>
+	/// unapply the buff effect. By default here will return false. Any one wish to use this need implement itself
+	/// </summary>
+	/// <param name="curChar"></param>
+	/// <returns></returns>
+	public virtual bool UnApplyBuffEffect(Character curChar) {
+		return false; 
+	}
+
+	public virtual void StackBuff(BuffEntity newBuff) {
+		if (!newBuff.buffName.Equals(buffName)) {
+			Debug.LogWarning("Trying to stack two different buffs: " + buffName + " and " + newBuff.buffName);
+			return;
+		}
 	}
 }
