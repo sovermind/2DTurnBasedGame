@@ -16,7 +16,8 @@ public class BleedingBuff : BuffEntity {
 		_damagePerTurn = damPT;
 	}
 
-	public override bool ApplyEffectOnTurnEnds(Character curChar) {
+	public override bool ApplyBuffEffect(Character curChar) {
+		// First make sure the bleeding effect only apply on turn end
 		if (buffType != EBuffType.ApplyOnTurnEnd) {
 			Debug.LogWarning("Buff type and apply affect method not same!");
 			return false;

@@ -22,6 +22,9 @@ public class BuffEntity {
 		get {
 			return _remainingTurns;
 		}
+		set {
+			_remainingTurns = value;
+        }
 	}
 
 	// total turns this buff will be activated
@@ -55,29 +58,10 @@ public class BuffEntity {
 	}
 
 	/// <summary>
-	/// apply affect on turn start. If buff not of this type, return false
-	/// Each buff of this type will need to override this function.
-	/// Otherwise if any buff of this type is using this default function, return false to notify user
+	/// apply buff effect to the charater. The caller should make sure call this based on buff type
 	/// </summary>
-	/// <returns></returns>
-	public virtual bool ApplyEffectOnTurnStart(Character curChar) {
-		if (buffType != EBuffType.ApplyOnTurnStart) {
-			return true;
-		}
-		return false;
-	}
-
-	public virtual bool ApplyEffectOnceImmediately(Character curChar) {
-		if (buffType != EBuffType.ApplyOnceImmediately) {
-			return true;
-		}
-		return false;
-	}
-
-	public virtual bool ApplyEffectOnTurnEnds(Character curChar) {
-		if (buffType != EBuffType.ApplyOnTurnEnd) {
-			return true;
-		}
+	/// <returns>true if apply effect successfully; false if not</returns>
+	public virtual bool ApplyBuffEffect(Character curChar) {
 		return false;
 	}
 }

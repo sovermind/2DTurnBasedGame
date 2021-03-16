@@ -373,6 +373,9 @@ public class Character : MonoBehaviour {
 	/// But for player controlled characters, player can choose to end the turn despite the current stats of characters
 	/// </summary>
 	public void EndThisTurn() {
+		// Before ending this turn, make sure all buff has been calculated
+		charBuffController.EndTurnCalculation(this);
+
 		hasFinishedThisTurn = false;
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
