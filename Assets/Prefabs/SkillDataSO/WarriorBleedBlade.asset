@@ -25,3 +25,4 @@ MonoBehaviour:
   initialDamage: 10
   bleedDamagePerTurn: 5
   initialDamageAttackerMultipler: 0.6
+  bleedAffectTurns: 2
