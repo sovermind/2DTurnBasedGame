@@ -485,6 +485,7 @@ public class Character : MonoBehaviour {
 
 		// UI adjustments
 		healthBar.SetStatsCurAmount((int)_health);
+		TextPopup.Create(transform.position, "-100");
 	}
 
 	IEnumerator WaitForAnimationToFinish(float duration) {

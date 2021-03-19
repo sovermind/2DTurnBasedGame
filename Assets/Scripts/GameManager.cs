@@ -60,6 +60,9 @@ public class GameManager : MonoBehaviour {
 	public Texture2D shootingCursor;
 
 	[SerializeField]
+	public GameObject textPopupGO;
+
+	[SerializeField]
 	private EGameState _gameState;
 
 	public EGameState gameState {
