@@ -44,6 +44,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextTurnButton: {fileID: 0}
-  attackButton: {fileID: 0}
+  basicAttackAndSkillButtons:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _defaultActiveSkill: {fileID: 11400000, guid: 2fcf640019e3ab24393a3447e3903219,
+    type: 2}
   shootingCursor: {fileID: 2800000, guid: 067ea32628043e349996812e22cc9bf5, type: 3}
+  textPopupGO: {fileID: 3516281049328668711, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0,
+    type: 3}
   _gameState: 0

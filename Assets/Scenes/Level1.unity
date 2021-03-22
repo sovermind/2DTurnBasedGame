@@ -7362,12 +7362,12 @@ PrefabInstance:
     - target: {fileID: 3516281049328668714, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -5.22
+      value: -5.25
       objectReference: {fileID: 0}
     - target: {fileID: 3516281049328668714, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.83
+      value: -0.05
       objectReference: {fileID: 0}
     - target: {fileID: 3516281049328668714, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0,
         type: 3}
@@ -7413,6 +7413,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Mesh
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2923584713843658256, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0,
+        type: 3}
+      propertyPath: shrinkRatioPerFrame
+      value: 0.98
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0, type: 3}
@@ -7485,61 +7490,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
         type: 3}
-      propertyPath: skillButtons.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: basicAttackAndSkillButtons.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
       propertyPath: nextTurnButton
       value: 
       objectReference: {fileID: 936515190}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: attackButton
-      value: 
-      objectReference: {fileID: 449535086}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: skillButtons.Array.data[0]
-      value: 
-      objectReference: {fileID: 305469848}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: skillButtons.Array.data[1]
-      value: 
-      objectReference: {fileID: 1433051174}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: skillButtons.Array.data[2]
-      value: 
-      objectReference: {fileID: 103795335}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: skillButtons.Array.data[3]
-      value: 
-      objectReference: {fileID: 142471219}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: skillLockButtonSprite
-      value: 
-      objectReference: {fileID: 21300000, guid: eb80aecdd9200de4184dcaf39f07b2ac,
-        type: 3}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: defaultActiveSkill
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: _defaultActiveSkill
-      value: 
-      objectReference: {fileID: 11400000, guid: 2fcf640019e3ab24393a3447e3903219,
-        type: 2}
     - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
         type: 3}
       propertyPath: basicAttackAndSkillButtons.Array.data[0]
@@ -7565,12 +7518,6 @@ PrefabInstance:
       propertyPath: basicAttackAndSkillButtons.Array.data[4]
       value: 
       objectReference: {fileID: 142471219}
-    - target: {fileID: 4743307236076300767, guid: 01149995197d2a7488f50aeb96d055ae,
-        type: 3}
-      propertyPath: textPopupGO
-      value: 
-      objectReference: {fileID: 3516281049328668711, guid: e2ffa3e60331e8f42a71ebc45aaeb9a0,
-        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 01149995197d2a7488f50aeb96d055ae, type: 3}
 --- !u!1001 &5426394837340175612

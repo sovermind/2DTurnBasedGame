@@ -35,6 +35,9 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private float damageTextNormalSizeRatio = 1.05f;
+	private float damageTextCritSizeRatio = 1.15f;
+
 	[Header("Constants")]
 	[SerializeField]
 	private float _movingIntervalSec = 0.2f;           // Time interval in sec for character move from current cell to the next
@@ -485,7 +488,7 @@ public class Character : MonoBehaviour {
 
 		// UI adjustments
 		healthBar.SetStatsCurAmount((int)_health);
-		TextPopup.Create(transform.position, "-100");
+		TextPopup.Create(transform.position, "-100", damageTextNormalSizeRatio);
 	}
 
 	IEnumerator WaitForAnimationToFinish(float duration) {
