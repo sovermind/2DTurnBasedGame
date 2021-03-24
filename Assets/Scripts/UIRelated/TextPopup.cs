@@ -33,6 +33,7 @@ public class TextPopup : MonoBehaviour {
 		textMesh.SetText(popupText);
 		TextPopup txtPop = thePopup.GetComponent<TextPopup>();
 		txtPop.textSizeIncreaseRatio = increaseSizeRatio;
+		Debug.Log("create " + popupText + ", " + increaseSizeRatio);
 	}
 
 	TextMeshPro textMesh;
@@ -55,6 +56,7 @@ public class TextPopup : MonoBehaviour {
 			transform.position += new Vector3(0, moveUpYSpeed) * Time.deltaTime;
 			// Increase the size by certain ratio
 			transform.localScale = transform.localScale * textSizeIncreaseRatio;
+			Debug.Log("scale size: " + transform.localScale + ", y pos: " +transform.position.y + ", y speed: " + moveUpYSpeed + ", delta t: " + Time.deltaTime);
 			if (transform.position.y - originPos.y >= moveUpYDist) {
 				isMovingUp = false;
 			}

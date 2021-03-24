@@ -488,7 +488,8 @@ public class Character : MonoBehaviour {
 
 		// UI adjustments
 		healthBar.SetStatsCurAmount((int)_health);
-		TextPopup.Create(transform.position, "-100", damageTextNormalSizeRatio);
+		string txtPop = "-" + damageAmount.ToString();
+		TextPopup.Create(transform.position, txtPop, damageTextNormalSizeRatio);
 	}
 
 	IEnumerator WaitForAnimationToFinish(float duration) {
