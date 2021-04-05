@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public enum EGameState {
 	PlayerTurn,
-	AIEnemyTurn
+	AIEnemyTurn,
+	TurnSwitching
 }
 
 public enum EAttackAndPrimaryActiveSkillID {
@@ -24,7 +25,7 @@ public class GameManager : MonoBehaviour {
 	private Camera mainCam;
 	private Grid mapGrid;
 	protected GameObject mapGridGO;
-	private bool waitingToStartEnemyTurn; // When the next turn button being pressed, but was not ready to start enemy turn yet
+	private bool nextTurnButtonHasPressed; // When the next turn button being pressed, but was not ready to start enemy turn yet
 
 	private int _gameTurnCount;
 	public int gameTurnCount {
@@ -44,10 +45,10 @@ public class GameManager : MonoBehaviour {
 	}
 
 	[SerializeField]
-	public Button nextTurnButton;
+	public bool playerFirstStartTurn = true;
 
-	//[SerializeField]
-	//public Button attackButton;
+	[SerializeField]
+	public Button nextTurnButton;
 
 	[SerializeField]
 	public Button[] basicAttackAndSkillButtons;
@@ -64,12 +65,13 @@ public class GameManager : MonoBehaviour {
 
 	[SerializeField]
 	private EGameState _gameState;
-
 	public EGameState gameState {
 		get {
 			return _gameState;
 		}
 	}
+
+	//private bool _isOkToSwitchGameState;
 
 	private static bool _isLeftClickDownGamePlay;
 	public static bool isLeftClickDownGamePlay {
@@ -85,33 +87,65 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	private bool _hasNotCallControllerEndTurn;
+
 	public void SetGameState(EGameState newState) {
+		Debug.Log("set game state to " + newState);
 		if (_gameState == newState) {
+			Debug.Log("old GS: " + _gameState + ", new GS: " + newState);
 			return;
 		}
 
-		// Check from which state to which state
-		// All enemy finished, give control back to player
-		if (_gameState == EGameState.AIEnemyTurn && newState == EGameState.PlayerTurn) {
-			UIDisplayController.SwitchTurnTo(EGameState.PlayerTurn);
-			// Update turn counter, now assume player starts the turn
-			_gameTurnCount = _gameTurnCount + 1;
-			foreach (GameObject curEnemyGO in AIEnemyCharacters) {
-				AIEnemyCharacterController curEnemyCharacterController = curEnemyGO.GetComponent<AIEnemyCharacterController>();
-				curEnemyCharacterController.ControllerEndThisTurn();
-			}
-			// Reset the current active player character, and switch that to Idle state
-			SetCurActivePlayerCharacter(PlayerControlCharacters[0].GetComponent<Character>());
-			curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
+		if (newState == EGameState.AIEnemyTurn || newState == EGameState.PlayerTurn) {
+			UIDisplayController.SwitchTurnTo(newState);
 		}
 
-		// Player has finished, give control to AI enemy
-		if (_gameState == EGameState.PlayerTurn && newState == EGameState.AIEnemyTurn) {
-			UIDisplayController.SwitchTurnTo(EGameState.AIEnemyTurn);
-			foreach (GameObject curPlayerGO in PlayerControlCharacters) {
-				PlayerCharacterController curPlayerCharController = curPlayerGO.GetComponent<PlayerCharacterController>();
-				curPlayerCharController.ControllerEndThisTurn();
-			}
+		// From old state -> new state corresponding to different cases
+		switch (_gameState) {
+			case EGameState.PlayerTurn:
+				switch (newState) {
+					case EGameState.AIEnemyTurn:
+						foreach (GameObject curPlayerGO in PlayerControlCharacters) {
+							Character curPlayer = curPlayerGO.GetComponent<Character>();
+							curPlayer.SwitchActionStateTo(ECharacterActionState.InActive);
+						}
+						break;
+					case EGameState.TurnSwitching:
+						break;
+					default:
+						break;
+				}
+				break;
+
+			case EGameState.AIEnemyTurn:
+				switch (newState) {
+					case EGameState.PlayerTurn:
+						break;
+					case EGameState.TurnSwitching:
+						break;
+					default:
+						break;
+				}
+
+				break;
+
+			case EGameState.TurnSwitching:
+				_hasNotCallControllerEndTurn = true;
+				_gameTurnCount = _gameTurnCount + 1;
+				switch (newState) {
+					case EGameState.PlayerTurn:
+						// Reset the current active player character, and switch that to Idle state
+						SetCurActivePlayerCharacter(PlayerControlCharacters[0].GetComponent<Character>());
+						curActivePlayerCharacter.SwitchActionStateTo(ECharacterActionState.Idle);
+						break;
+					case EGameState.AIEnemyTurn:
+						break;
+					default:
+						break;
+				}
+				break;
+			default:
+				break;
 		}
 
 		// Switch state
@@ -124,6 +158,7 @@ public class GameManager : MonoBehaviour {
 		}
 		_gameState = EGameState.PlayerTurn;
 		defaultActiveSkill = _defaultActiveSkill;
+		_hasNotCallControllerEndTurn = true;
 
 		DontDestroyOnLoad(gameObject);
 	}
@@ -154,7 +189,7 @@ public class GameManager : MonoBehaviour {
 
 	private void Start() {
 		_gameTurnCount = 1;
-		waitingToStartEnemyTurn = false;
+		nextTurnButtonHasPressed = false;
 		mainCam = Camera.main;
 		mapGridGO = GameObject.Find("WorldMapGrid");
 		mapGrid = new Grid();
@@ -252,6 +287,45 @@ public class GameManager : MonoBehaviour {
 				CheckToStartEnemyTurn();
 
 				break;
+			case EGameState.TurnSwitching:
+				// Here we need to handle end turn calculation for turn switching
+				// 1. Do buff calculation for player & enemy (include animations)
+				// 2. Reset character's properties
+				if (_hasNotCallControllerEndTurn) {
+					_hasNotCallControllerEndTurn = false;
+					foreach (GameObject curEnemyGO in AIEnemyCharacters) {
+						AIEnemyCharacterController curEnemyCharacterController = curEnemyGO.GetComponent<AIEnemyCharacterController>();
+						curEnemyCharacterController.ControllerEndThisTurn();
+					}
+					foreach (GameObject curPlayerGO in PlayerControlCharacters) {
+						PlayerCharacterController curPlayerCharController = curPlayerGO.GetComponent<PlayerCharacterController>();
+						curPlayerCharController.ControllerEndThisTurn();
+					}
+				} else {
+					Debug.Log("Ready to end turn for all characters");
+					// Check if all end turn switch is done and can start a new turn now
+					foreach (GameObject curEnemyGO in AIEnemyCharacters) {
+						Character enemy_char = curEnemyGO.GetComponent<Character>();
+						if (enemy_char.characterCurrentActionState != ECharacterActionState.InActive) {
+							return;
+						}
+					}
+					foreach (GameObject curPlayerGO in PlayerControlCharacters) {
+						Character player_char = curPlayerGO.GetComponent<Character>();
+						if (player_char.characterCurrentActionState != ECharacterActionState.InActive) {
+							return;
+						}
+					}
+					Debug.Log("all characters are inactive now");
+					if (playerFirstStartTurn) {
+						SetGameState(EGameState.PlayerTurn);
+					} else {
+						SetGameState(EGameState.AIEnemyTurn);
+					}
+					
+				}
+
+				break;
 			default:
 				break;
 		}
@@ -262,24 +336,50 @@ public class GameManager : MonoBehaviour {
 	/// currently these need to be satisfied to start enemy's turn:
 	/// 1. NextTurn button being pressed
 	/// 2. all enemy is inactive state means all animation of enemy are finished
+	/// 3. all players are either idle or inactive. So the switch turn does not interrupt anything that characters are doing
+	/// 4. if player starts turn first, goes to turn switching
+	/// 5. if enemy starts turn first, switch to enemy turn
 	/// </summary>
 	private void CheckToStartEnemyTurn() {
-		bool okToStartEnemyTurn = true;
-		if (waitingToStartEnemyTurn) {
-			// Need to check if it's allowed to start the next turn
-			// Has all the enemy return to inactive state?
+		bool isOkToSwitchGameState = true;
+		// 1. next turn button being pressed
+		if (nextTurnButtonHasPressed) {
+			// 2. Check enemy states
 			foreach (GameObject AIEnemyGO in AIEnemyCharacters) {
 				Character enemy = AIEnemyGO.GetComponent<Character>();
+				Debug.Log("enemy.characterCurrentActionState: " + enemy.characterCurrentActionState);
 				if (enemy.characterCurrentActionState != ECharacterActionState.InActive) {
-					okToStartEnemyTurn = false;
+					isOkToSwitchGameState = false;
 					break;
 				}
 			}
 
-			if (okToStartEnemyTurn) {
-				SetGameState(EGameState.AIEnemyTurn);
-				waitingToStartEnemyTurn = false;
+			// 3. Check player states
+			if (isOkToSwitchGameState) {
+				foreach (GameObject playerGO in PlayerControlCharacters) {
+					Character curPlayer = playerGO.GetComponent<Character>();
+					if (curPlayer.characterCurrentActionState != ECharacterActionState.Idle &&
+						curPlayer.characterCurrentActionState != ECharacterActionState.InActive) {
+						isOkToSwitchGameState = false;
+						break;
+					}
+				}
 			}
+
+			if (isOkToSwitchGameState) {
+				// 4. If player start the turn first, Switch to enemy turn
+				if (playerFirstStartTurn) {
+					SetGameState(EGameState.AIEnemyTurn);
+				}
+				// 5. If enemy start the turn first, switch to turn switching
+				else {
+					SetGameState(EGameState.TurnSwitching);
+				}
+			}
+
+
+			// Reset the button pressed
+			nextTurnButtonHasPressed = false;
 		}
 
 	}
@@ -298,18 +398,16 @@ public class GameManager : MonoBehaviour {
 		}
 
 		// need to check if all players are inactive state. (If still in hurting state, the animation will being paused)
-		bool waitForPlayerCharacterToBeInactive = false;
+		bool isOkToSwitchGameState = true;
 		foreach (GameObject playerChar in PlayerControlCharacters) {
 			Character pc = playerChar.GetComponent<Character>();
 			if (pc.characterCurrentActionState != ECharacterActionState.InActive) {
-				waitForPlayerCharacterToBeInactive = true;
+				isOkToSwitchGameState = false;
 				break;
 			}
 		}
 
-		if (waitForActiveEnemies.Count == 0 && !waitForPlayerCharacterToBeInactive) {
-			SetGameState(EGameState.PlayerTurn);
-		} else if (waitForActiveEnemies.Count != 0) {
+		if (waitForActiveEnemies.Count != 0) {
 			bool startNextEnemy = true;
 			// Now all the waiting enemies should has not finish this turn. So if someone has started, meaning it's doing some action
 			// wait for all waiting enemies not start this turn, then send one of them to be active
@@ -321,6 +419,15 @@ public class GameManager : MonoBehaviour {
 			}
 			if (startNextEnemy) {
 				waitForActiveEnemies[0].SwitchActionStateTo(ECharacterActionState.Idle);
+			}
+		} else {
+			// Now no wait enemies available, we can check if it's ok to end enemy turn now
+			if (isOkToSwitchGameState) {
+				if (playerFirstStartTurn) {
+					SetGameState(EGameState.TurnSwitching);
+				} else {
+					SetGameState(EGameState.PlayerTurn);
+				}
 			}
 		}
 	}
@@ -364,10 +471,7 @@ public class GameManager : MonoBehaviour {
 
 	public void StartNextTurnButtonListener() {
 		if (_gameState == EGameState.PlayerTurn) {
-
-			waitingToStartEnemyTurn = true;
-			//SetGameState(EGameState.AIEnemyTurn);
-			// Need to reset all variables that player and enemy have
+			nextTurnButtonHasPressed = true;
 		}
 	}
 

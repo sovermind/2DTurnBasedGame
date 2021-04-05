@@ -76,6 +76,8 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private bool _hurtAnimationDone;
+
 
 	private string _curCharacterName;
 	[Header("Character properties")]
@@ -219,6 +221,7 @@ public class Character : MonoBehaviour {
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
 		_attackDone = false;
+		_hurtAnimationDone = false;
 		_health = _maxHealth;
 		_actionPoints = _maxActionPoints;
 		// Make sure the character starts off at the center of the hexcell
@@ -231,16 +234,16 @@ public class Character : MonoBehaviour {
 	// Update is called once per frame
 	void Update() {
 
-		switch (_characterCurrentActionState) {
-			case ECharacterActionState.Hurting:
-				// Check if the normalized time greater than 100% and make sure it's not in transition
-				if (charAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !charAnimator.IsInTransition(0)) {
-					SwitchActionStateTo(_characterPrevActionState);
-				}
-				break;
-			default:
-				break;
-		}
+		//switch (_characterCurrentActionState) {
+		//	case ECharacterActionState.Hurting:
+		//		// Check if the normalized time greater than 100% and make sure it's not in transition
+		//		if (_hurtAnimationDone) {
+		//			SwitchActionStateTo(_characterPrevActionState);
+		//		}
+		//		break;
+		//	default:
+		//		break;
+		//}
 	}
 
 	/// <summary>
@@ -251,12 +254,12 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
 		Debug.Log("Switch action state from: " + _characterCurrentActionState + " to: " + newState);
-		_characterPrevActionState = _characterCurrentActionState;
 
 		// If for some reason the character has not been set to inactive yet and we ask to transit state, make it in active first
 		//if (_characterCurrentActionState == ECharacterActionState.None) {
 		//	_characterCurrentActionState = ECharacterActionState.InActive;
 		//}
+
 		// State transition should depend on the current state
 		switch (_characterCurrentActionState) {
 			case ECharacterActionState.InActive:
@@ -341,6 +344,12 @@ public class Character : MonoBehaviour {
 				}
 				break;
 			case ECharacterActionState.Hurting:
+				// No one should interupt hurting. 
+				if (_hurtAnimationDone == false) {
+					return true;
+				}
+				// Now the animation has already done playing, we can switch back to previous state
+				_hurtAnimationDone = false;
 				switch (newState) {
 					case ECharacterActionState.InActive:
 						charAnimator.SetBool("IsInActive", true);
@@ -364,7 +373,7 @@ public class Character : MonoBehaviour {
 			default:
 				break;
 		}
-
+		_characterPrevActionState = _characterCurrentActionState;
 		_characterCurrentActionState = newState;
 
 		return true;
@@ -376,6 +385,7 @@ public class Character : MonoBehaviour {
 	/// But for player controlled characters, player can choose to end the turn despite the current stats of characters
 	/// </summary>
 	public void EndThisTurn() {
+		SwitchActionStateTo(ECharacterActionState.InActive);
 		// Before ending this turn, make sure all buff has been calculated
 		charBuffController.EndTurnCalculation(this);
 
@@ -383,7 +393,6 @@ public class Character : MonoBehaviour {
 		hasStartedThisTurn = false;
 		_hasStartAttack = false;
 		_attackDone = false;
-		SwitchActionStateTo(ECharacterActionState.InActive);
 		// restore action points
 		_actionPoints = maxActionPoints;
 	}
@@ -536,5 +545,11 @@ public class Character : MonoBehaviour {
 
 	public bool IsMyAlly(Character chara) {
 		return this.tag == chara.tag;
+	}
+
+	public void HurtAnimationDonePlaying() {
+		Debug.Log("hurt animation done and switch to prev state: " + _characterPrevActionState);
+		_hurtAnimationDone = true;
+		SwitchActionStateTo(_characterPrevActionState);
 	}
 }
