@@ -59,7 +59,7 @@ public class PlayerCharacterController : MyCharacterController {
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
 					// Check if the click cell is a cell that char can move to
 					bool isClickCellMovable = false;
-					bool isClickCellEnemy = false;
+					//bool isClikckCellEnemy = false;
 					foreach (HexCell destCell in allPossibleDest) {
 						isClickCellMovable = (destCell.Equals(clickCell));
 						if (isClickCellMovable) {
@@ -72,14 +72,13 @@ public class PlayerCharacterController : MyCharacterController {
 						Vector3 curEnemyPos = enemyGO.transform.position;
 						HexCell curEnemyCell = HexMap.hexMap.GetHexCellFromWorldPos(curEnemyPos);
 						if (curEnemyCell.Equals(clickCell)) {
-							isClickCellEnemy = true;
+							//isClickCellEnemy = true;
+							isClickCellMovable = false;
 							break;
 						}
 					}
 
-					if (isClickCellEnemy) {
-						// TODO: Show enemy information, this should be moved into GameManager instead
-					} else if (isClickCellMovable) {
+					if (isClickCellMovable) {
 						// If player can move there and it's not occupied by enemy, switch to moving state and move there
 						int totalPathCost = Int32.MaxValue;
 						charNavigation.ComputePath(charCurCell, clickCell, ref totalPathCost);
@@ -108,9 +107,9 @@ public class PlayerCharacterController : MyCharacterController {
 			case ECharacterActionState.Attacking:
 				if (curCharactor.hasStartAttack && curCharactor.attackDone) {
 					curCharactor.SwitchActionStateTo(ECharacterActionState.Idle);
+					GameManager.ChangeMouseCursorToDefault();
+					break;
 				}
-
-				// For now, we only have basic attack, later should have different attack types
 
 				if (GameManager.isLeftClickUpGamePlay) {
 					// Check if the click is within a valid target

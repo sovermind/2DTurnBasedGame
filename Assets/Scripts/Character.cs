@@ -225,6 +225,7 @@ public class Character : MonoBehaviour {
 		_health = _maxHealth;
 		_actionPoints = _maxActionPoints;
 		// Make sure the character starts off at the center of the hexcell
+		Debug.Log("charCurHexCell: " + charCurHexCell.hexCellPos);
 		transform.position = HexMap.hexMap.GetWorldPosFromHexCell(charCurHexCell);
 
 		// UI Control init
@@ -233,17 +234,8 @@ public class Character : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update() {
+		// If player hover mouse over the character, show the detail info panel of that character
 
-		//switch (_characterCurrentActionState) {
-		//	case ECharacterActionState.Hurting:
-		//		// Check if the normalized time greater than 100% and make sure it's not in transition
-		//		if (_hurtAnimationDone) {
-		//			SwitchActionStateTo(_characterPrevActionState);
-		//		}
-		//		break;
-		//	default:
-		//		break;
-		//}
 	}
 
 	/// <summary>

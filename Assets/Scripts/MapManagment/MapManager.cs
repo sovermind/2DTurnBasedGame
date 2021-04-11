@@ -49,9 +49,12 @@ public class MapManager : MonoBehaviour{
 			allTileMapData.Add(tm);
 		}
 
-		mapGrid = GetComponent<Grid>();
 
 		InitializeWorldMap();
+	}
+
+	private void Awake() {
+		mapGrid = GetComponent<Grid>();
 	}
 
 	void InitializeWorldMap() {

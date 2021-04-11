@@ -43,6 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1571675cf35b7544caa84b2569ac0725, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerFirstStartTurn: 1
   nextTurnButton: {fileID: 0}
   basicAttackAndSkillButtons:
   - {fileID: 0}

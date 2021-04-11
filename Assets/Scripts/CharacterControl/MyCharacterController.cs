@@ -9,6 +9,7 @@ using UnityEngine;
 public class MyCharacterController : MonoBehaviour {
 
 	public Character curCharactor;
+	public GameObject characterDetailInfoPanel;
 	protected Camera mainCam;
 	protected NavigationManager charNavigation;       // character navigation manager
 	protected List<HexCell> curPath;                  // current path ready to be execute
@@ -17,7 +18,6 @@ public class MyCharacterController : MonoBehaviour {
 	protected Grid mapGrid;
 	protected bool needToCalAllPossibleDestinations;
 	protected bool waitInCoroutine;
-	private bool hasTurnedOffAttackRangeHighlight;
 
 	protected virtual void Start() {
 		mainCam = Camera.main;
@@ -31,20 +31,17 @@ public class MyCharacterController : MonoBehaviour {
 		isMoving = false;
 		needToCalAllPossibleDestinations = true;
 		waitInCoroutine = false;
-		hasTurnedOffAttackRangeHighlight = false;
+		characterDetailInfoPanel.SetActive(false);
 	}
 
 	protected virtual void Update() {
 		Vector3 mouseClickWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
 		if (CommonUtil.IsPosInsideBound2D(mouseClickWorldPos, curCharactor.charSpriteRenderer.bounds)) {
-			HighlightAttackRangeCells(true);
-			hasTurnedOffAttackRangeHighlight = false;
+			//HighlightAttackRangeCells(true);
+			characterDetailInfoPanel.SetActive(true);
 		} else {
-			if (!hasTurnedOffAttackRangeHighlight) {
-				hasTurnedOffAttackRangeHighlight = true;
-				HighlightAttackRangeCells(false);
-			}
-			
+			//HighlightAttackRangeCells(false);
+			characterDetailInfoPanel.SetActive(false);			
 		}
 	}
 

@@ -20,6 +20,7 @@ public class StatsBarController : MonoBehaviour {
 	/// </summary>
 	/// <param name="maxAmount"></param>
 	public void SetStatsMaxAmount(int maxAmount) {
+		Debug.Log("Calling herer");
 		barSlider.maxValue = maxAmount;
 		barSlider.value = maxAmount;
 	}
