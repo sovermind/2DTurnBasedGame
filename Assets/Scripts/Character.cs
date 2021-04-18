@@ -133,6 +133,8 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private List<HexCell> _allCurMovableCells;
+
 	[Header("Character Skills")]
 	public SkillSO curCharbasicAttack;
 	public SkillSO[] allPossibleActiveSkills;
@@ -143,6 +145,8 @@ public class Character : MonoBehaviour {
 	public BuffController charBuffController;
 
 	private Animator charAnimator;
+
+	private HexCell _charPrevHexCell;
 
 	private HexCell _charCurHexCell;
 	public HexCell charCurHexCell {
@@ -174,10 +178,6 @@ public class Character : MonoBehaviour {
 	}
 
 	public void SetCurTargetCharacter(Character targetChar) {
-		//if (targetChar == null) {
-		//	Debug.LogWarning("Set target character is null");
-		//	return;
-		//}
 		_curTargetCharacter = targetChar;
 	}
 
@@ -225,17 +225,21 @@ public class Character : MonoBehaviour {
 		_health = _maxHealth;
 		_actionPoints = _maxActionPoints;
 		// Make sure the character starts off at the center of the hexcell
-		Debug.Log("charCurHexCell: " + charCurHexCell.hexCellPos);
 		transform.position = HexMap.hexMap.GetWorldPosFromHexCell(charCurHexCell);
 
 		// UI Control init
 		healthBar.SetStatsMaxAmount((int)_maxHealth);
+
+		UpdateMoveableCells();
 	}
 
 	// Update is called once per frame
 	void Update() {
-		// If player hover mouse over the character, show the detail info panel of that character
-
+		// If the character's cell position gets changed, update the moveable cells
+		if (!charCurHexCell.Equals(_charPrevHexCell)) {
+			_charPrevHexCell = charCurHexCell;
+			UpdateMoveableCells();
+		}
 	}
 
 	/// <summary>
@@ -246,11 +250,6 @@ public class Character : MonoBehaviour {
 	/// <returns></returns>
 	public bool SwitchActionStateTo(ECharacterActionState newState) {
 		Debug.Log("Switch action state from: " + _characterCurrentActionState + " to: " + newState);
-
-		// If for some reason the character has not been set to inactive yet and we ask to transit state, make it in active first
-		//if (_characterCurrentActionState == ECharacterActionState.None) {
-		//	_characterCurrentActionState = ECharacterActionState.InActive;
-		//}
 
 		// State transition should depend on the current state
 		switch (_characterCurrentActionState) {
@@ -316,6 +315,11 @@ public class Character : MonoBehaviour {
 				}
 				break;
 			case ECharacterActionState.Attacking:
+				// when we switch out of attack state, we clear the attack highlight
+				if (newState != ECharacterActionState.Attacking) {
+					List<HexCell> allAttackableCells = GetAllAttackableCells();
+					MapManager.ClearHighlightedCells(allAttackableCells, ETileHighlightType.AttackRange);
+				}
 				switch (newState) {
 					case ECharacterActionState.InActive:
 						charAnimator.SetBool("IsInActive", true);
@@ -387,6 +391,8 @@ public class Character : MonoBehaviour {
 		_attackDone = false;
 		// restore action points
 		_actionPoints = maxActionPoints;
+		// restore the moveable cells
+		UpdateMoveableCells();
 	}
 
 	/// <summary>
@@ -400,6 +406,14 @@ public class Character : MonoBehaviour {
 		// (TODO): Then check if there's obstacles in between
 
 		return allPotentialAttackableCells;
+	}
+
+	public List<HexCell> GetAllMoveableCells() {
+		return _allCurMovableCells;
+	}
+
+	public void UpdateMoveableCells() {
+		_allCurMovableCells = HexMap.hexMap.AllPossibleDestinationCells(charCurHexCell, actionPoints);
 	}
 
 	/// <summary>

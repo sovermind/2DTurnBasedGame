@@ -40,18 +40,9 @@ public class PlayerCharacterController : MyCharacterController {
 		// Switch through all different states possible
 		switch (curCharactor.characterCurrentActionState) {
 			case ECharacterActionState.InActive:
-				needToCalAllPossibleDestinations = true;
+				//needToCalAllPossibleDestinations = true;
 				break;
 			case ECharacterActionState.Idle:
-				// Highlight the place that the character is able to move
-				if (needToCalAllPossibleDestinations) {
-					allPossibleDest = HexMap.hexMap.AllPossibleDestinationCells(charCurCell, curCharactor.actionPoints);
-					needToCalAllPossibleDestinations = false;
-					MapManager.SetHighlightCells(allPossibleDest, ETileHighlightType.MoveRange);
-				}
-
-
-
 				// left mouse click actions: 
 				// 1. move to cell based on remaining AP
 				// 2. If click on enemy, show enemy information
@@ -60,7 +51,7 @@ public class PlayerCharacterController : MyCharacterController {
 					// Check if the click cell is a cell that char can move to
 					bool isClickCellMovable = false;
 					//bool isClikckCellEnemy = false;
-					foreach (HexCell destCell in allPossibleDest) {
+					foreach (HexCell destCell in curCharactor.GetAllMoveableCells()) {
 						isClickCellMovable = (destCell.Equals(clickCell));
 						if (isClickCellMovable) {
 							break;
@@ -86,7 +77,6 @@ public class PlayerCharacterController : MyCharacterController {
 						// If the current action points is still sufficient for the total cost of path, move to place
 						if (curCharactor.actionPoints >= totalPathCost) {
 							curCharactor.actionPoints = curCharactor.actionPoints - totalPathCost;
-							needToCalAllPossibleDestinations = true;
 							curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
 						}
 					}

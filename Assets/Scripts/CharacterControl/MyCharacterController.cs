@@ -16,7 +16,6 @@ public class MyCharacterController : MonoBehaviour {
 	protected bool isMoving;
 	protected GameObject mapGridGO;
 	protected Grid mapGrid;
-	protected bool needToCalAllPossibleDestinations;
 	protected bool waitInCoroutine;
 
 	protected virtual void Start() {
@@ -29,7 +28,6 @@ public class MyCharacterController : MonoBehaviour {
 		curCharactor = GetComponent<Character>();
 		charNavigation = new NavigationManager();
 		isMoving = false;
-		needToCalAllPossibleDestinations = true;
 		waitInCoroutine = false;
 		characterDetailInfoPanel.SetActive(false);
 	}
@@ -37,28 +35,33 @@ public class MyCharacterController : MonoBehaviour {
 	protected virtual void Update() {
 		Vector3 mouseClickWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
 		if (CommonUtil.IsPosInsideBound2D(mouseClickWorldPos, curCharactor.charSpriteRenderer.bounds)) {
-			//HighlightAttackRangeCells(true);
 			characterDetailInfoPanel.SetActive(true);
 		} else {
-			//HighlightAttackRangeCells(false);
 			characterDetailInfoPanel.SetActive(false);			
 		}
+
+		// Show attack range if character is in attack mode
+		if (curCharactor.characterCurrentActionState == ECharacterActionState.Attacking) {
+			HighlightAttackRangeCells();
+		} 
+		// Show move range cells when the character in idle
+		if (curCharactor.characterCurrentActionState == ECharacterActionState.Idle) {
+			HighlightMovingRangeCells();
+		}	
 	}
 
 	public void ControllerEndThisTurn() {
-		needToCalAllPossibleDestinations = true;
 		curCharactor.EndThisTurn();
 	}
 
-	protected void HighlightAttackRangeCells(bool on) {
-		// Highlight the attacking range
+	protected void HighlightAttackRangeCells() {
 		List<HexCell> allAttackableCells = curCharactor.GetAllAttackableCells();
-		if (on) {
-			MapManager.SetHighlightCells(allAttackableCells, ETileHighlightType.AttackRange);
-		} else {
-			MapManager.ClearHighlightedCells(allAttackableCells, ETileHighlightType.AttackRange);
-		}
-		
+		MapManager.SetHighlightCells(allAttackableCells, ETileHighlightType.AttackRange);
+	}
+
+	protected void HighlightMovingRangeCells() {
+		List<HexCell> allMovingRangeCells = curCharactor.GetAllMoveableCells();
+		MapManager.SetHighlightCells(allMovingRangeCells, ETileHighlightType.MoveRange);
 	}
 
 	/// <summary>

@@ -50,15 +50,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			case ECharacterActionState.Idle:
 				// If still have action points, move towards it's target
-				if (curCharactor.actionPoints > 0 && !curCharactor.attackDone) {
-					// Highlight the place that the character is able to move
-					List<HexCell> allPossibleDest = new List<HexCell>();
-					if (needToCalAllPossibleDestinations) {
-						allPossibleDest = HexMap.hexMap.AllPossibleDestinationCells(curCell, curCharactor.actionPoints);
-						needToCalAllPossibleDestinations = false;
-						MapManager.SetHighlightCells(allPossibleDest, ETileHighlightType.MoveRange);
-					}					
-
+				if (curCharactor.actionPoints > 0 && !curCharactor.attackDone) {				
 					// Get a path from cur pos to target pos
 					int totalPathCost = Int32.MaxValue;
 					charNavigation.ComputePath(curCell, curTargetCell, ref totalPathCost);
