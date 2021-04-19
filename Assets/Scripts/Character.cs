@@ -35,6 +35,16 @@ public class Character : MonoBehaviour {
 		}
 	}
 
+	private bool _charFaceRight;
+	public bool charFaceRight {
+		get {
+			return _charFaceRight;
+		}
+		//set {
+		//	_charFaceRight = value;
+		//}
+	}
+
 	private float damageTextNormalSizeRatio = 1.05f;
 	private float damageTextCritSizeRatio = 1.15f;
 
@@ -147,6 +157,11 @@ public class Character : MonoBehaviour {
 	private Animator charAnimator;
 
 	private HexCell _charPrevHexCell;
+	public HexCell charPrevHexCell {
+		get {
+			return _charPrevHexCell;
+		}
+	}
 
 	private HexCell _charCurHexCell;
 	public HexCell charCurHexCell {
@@ -212,6 +227,8 @@ public class Character : MonoBehaviour {
 		}
 
 		charBuffController = new BuffController();
+		_charPrevHexCell = charCurHexCell;
+		_charFaceRight = true;
 	}
 
 	// Start is called before the first frame update
@@ -235,8 +252,13 @@ public class Character : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update() {
-		// If the character's cell position gets changed, update the moveable cells
+		if (charFaceRight) {
+			charSpriteRenderer.flipX = true;
+		} else {
+			charSpriteRenderer.flipX = false;
+		}
 		if (!charCurHexCell.Equals(_charPrevHexCell)) {
+			// Update the moveable cells
 			_charPrevHexCell = charCurHexCell;
 			UpdateMoveableCells();
 		}
@@ -439,6 +461,9 @@ public class Character : MonoBehaviour {
 			Debug.Log("No target character! No action performed!");
 			return false;
 		}
+		// Turn the character towards the target
+		SetCharacterFacingDirection(curTargetCharacter.charCurHexCell);
+
 		bool okToProcceed = false;
 		// First check if the attack target type matches the chosen attack method
 		// You don't want to attack ally!
@@ -557,5 +582,24 @@ public class Character : MonoBehaviour {
 		Debug.Log("hurt animation done and switch to prev state: " + _characterPrevActionState);
 		_hurtAnimationDone = true;
 		SwitchActionStateTo(_characterPrevActionState);
+	}
+
+	public void SetCharacterFacingDirection(HexCell facingTargetCell) {
+		int deltaX = facingTargetCell.hexCellPos.x - charCurHexCell.hexCellPos.x;
+		int deltaY = facingTargetCell.hexCellPos.y - charCurHexCell.hexCellPos.y;
+		if (deltaX > 0) {
+			_charFaceRight = true;
+		}
+		else if (deltaX == 0) {
+			if (deltaY >= 0) {
+				_charFaceRight = true;
+			}
+			else {
+				_charFaceRight = false;
+			}
+		}
+		else if (deltaX < 0) {
+			_charFaceRight = false;
+		}
 	}
 }

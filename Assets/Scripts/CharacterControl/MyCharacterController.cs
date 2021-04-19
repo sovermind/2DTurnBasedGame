@@ -33,8 +33,8 @@ public class MyCharacterController : MonoBehaviour {
 	}
 
 	protected virtual void Update() {
-		Vector3 mouseClickWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
-		if (CommonUtil.IsPosInsideBound2D(mouseClickWorldPos, curCharactor.charSpriteRenderer.bounds)) {
+		Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
+		if (CommonUtil.IsPosInsideBound2D(mouseWorldPos, curCharactor.charSpriteRenderer.bounds)) {
 			characterDetailInfoPanel.SetActive(true);
 		} else {
 			characterDetailInfoPanel.SetActive(false);			

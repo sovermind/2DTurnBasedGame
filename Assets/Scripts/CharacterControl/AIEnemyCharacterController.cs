@@ -50,7 +50,9 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			case ECharacterActionState.Idle:
 				// If still have action points, move towards it's target
-				if (curCharactor.actionPoints > 0 && !curCharactor.attackDone) {				
+				if (curCharactor.actionPoints > 0 && !curCharactor.attackDone) {
+					// Make enemy facing the target cell
+					curCharactor.SetCharacterFacingDirection(curTargetCell);
 					// Get a path from cur pos to target pos
 					int totalPathCost = Int32.MaxValue;
 					charNavigation.ComputePath(curCell, curTargetCell, ref totalPathCost);
@@ -75,7 +77,6 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			case ECharacterActionState.Attacking:
 				if (curCharactor.IsTargetAttackable(curTargetCell)) {
-					// (TODO): Now only have basic attack. Later can add logic to decide if use skill/heal/etc.
 					if (!curCharactor.hasStartAttack) {
 						curCharactor.PerformAttack();
 					}

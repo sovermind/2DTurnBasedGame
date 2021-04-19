@@ -50,7 +50,6 @@ public class PlayerCharacterController : MyCharacterController {
 					HexCell clickCell = HexMap.hexMap.GetHexCellFromWorldPos(clickedUnityCellCenterWorldPos);
 					// Check if the click cell is a cell that char can move to
 					bool isClickCellMovable = false;
-					//bool isClikckCellEnemy = false;
 					foreach (HexCell destCell in curCharactor.GetAllMoveableCells()) {
 						isClickCellMovable = (destCell.Equals(clickCell));
 						if (isClickCellMovable) {
@@ -76,6 +75,8 @@ public class PlayerCharacterController : MyCharacterController {
 						Debug.Log("MyCharacterController: cur path total cost: " + totalPathCost + ", cur ap: " + curCharactor.actionPoints);
 						// If the current action points is still sufficient for the total cost of path, move to place
 						if (curCharactor.actionPoints >= totalPathCost) {
+							// Set the player's facing direction
+							curCharactor.SetCharacterFacingDirection(clickCell);
 							curCharactor.actionPoints = curCharactor.actionPoints - totalPathCost;
 							curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
 						}
