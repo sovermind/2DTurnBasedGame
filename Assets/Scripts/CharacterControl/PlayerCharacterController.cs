@@ -72,12 +72,12 @@ public class PlayerCharacterController : MyCharacterController {
 						// If player can move there and it's not occupied by enemy, switch to moving state and move there
 						int totalPathCost = Int32.MaxValue;
 						charNavigation.ComputePath(charCurCell, clickCell, ref totalPathCost);
-						Debug.Log("MyCharacterController: cur path total cost: " + totalPathCost + ", cur ap: " + curCharactor.actionPoints);
+						Debug.Log("MyCharacterController: cur path total cost: " + totalPathCost + ", cur ap: " + curCharactor.charStatus.actionPoints);
 						// If the current action points is still sufficient for the total cost of path, move to place
-						if (curCharactor.actionPoints >= totalPathCost) {
+						if (curCharactor.charStatus.actionPoints >= totalPathCost) {
 							// Set the player's facing direction
 							curCharactor.SetCharacterFacingDirection(clickCell);
-							curCharactor.actionPoints = curCharactor.actionPoints - totalPathCost;
+							curCharactor.charStatus.SetAP(curCharactor.charStatus.actionPoints - totalPathCost);
 							curCharactor.SwitchActionStateTo(ECharacterActionState.Moving);
 						}
 					}

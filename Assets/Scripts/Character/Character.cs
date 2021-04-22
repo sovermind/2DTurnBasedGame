@@ -24,6 +24,8 @@ struct SkillStatus {
 }
 
 [RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Character))]
+[RequireComponent(typeof(CharacterStatus))]
 public class Character : MonoBehaviour {
 	[Header("UI Related")]
 	public StatsBarController healthBar;
@@ -88,60 +90,66 @@ public class Character : MonoBehaviour {
 
 	private bool _hurtAnimationDone;
 
+	[Header("Character properties")]
+	private CharacterStatus _charStatus;
+	public CharacterStatus charStatus {
+		get {
+			return _charStatus;
+		}
+	}
+	//[SerializeField]
+	//private uint _health;
+	//public uint health {
+	//	get {
+	//		return _health;
+	//	}
+	//}
+
+	//[SerializeField]
+	//private uint _maxHealth;
+	//public uint maxHealth {
+	//	get {
+	//		return _maxHealth;
+	//	}
+	//}
+
+	//[SerializeField]
+	//private int _attack;
+	//public int attack {
+	//	get {
+	//		return _attack;
+	//	}
+	//}
+
+	//[SerializeField]
+	//private int _defend;
+	//public int defend {
+	//	get {
+	//		return _defend;
+	//	}
+	//}
+
+	//[SerializeField]
+	//private int _actionPoints;
+	//public int actionPoints {
+	//	set {
+	//		_actionPoints = value;
+	//	}
+
+	//	get {
+	//		return _actionPoints;
+	//	}
+	//}
+
+	//[SerializeField]
+	//private int _maxActionPoints = 4;
+	//public int maxActionPoints {
+	//	get {
+	//		return _maxActionPoints;
+	//	}
+	//}
 
 	private string _curCharacterName;
-	[Header("Character properties")]
-	[SerializeField]
-	private uint _health;
-	public uint health {
-		get {
-			return _health;
-		}
-	}
-
-	[SerializeField]
-	private uint _maxHealth;
-	public uint maxHealth {
-		get {
-			return _maxHealth;
-		}
-	}
-
-	[SerializeField]
-	private int _attack;
-	public int attack {
-		get {
-			return _attack;
-		}
-	}
-
-	[SerializeField]
-	private int _defend;
-	public int defend {
-		get {
-			return _defend;
-		}
-	}
-
-	[SerializeField]
-	private int _actionPoints;
-	public int actionPoints {
-		set {
-			_actionPoints = value;
-		}
-
-		get {
-			return _actionPoints;
-		}
-	}
-
-	[SerializeField]
-	private int _maxActionPoints = 4;
-	public int maxActionPoints {
-		get {
-			return _maxActionPoints;
-		}
-	}
 
 	private List<HexCell> _allCurMovableCells;
 
@@ -203,6 +211,7 @@ public class Character : MonoBehaviour {
 		_characterPrevActionState = ECharacterActionState.InActive;
 		charAnimator = GetComponent<Animator>();
 		_charSpriteRenderer = GetComponent<SpriteRenderer>();
+		_charStatus = GetComponent<CharacterStatus>();
 
 		// On start animation should be inactive
 		charAnimator.SetBool("IsInActive", true);
@@ -239,13 +248,11 @@ public class Character : MonoBehaviour {
 		_hasStartAttack = false;
 		_attackDone = false;
 		_hurtAnimationDone = false;
-		_health = _maxHealth;
-		_actionPoints = _maxActionPoints;
 		// Make sure the character starts off at the center of the hexcell
 		transform.position = HexMap.hexMap.GetWorldPosFromHexCell(charCurHexCell);
 
 		// UI Control init
-		healthBar.SetStatsMaxAmount((int)_maxHealth);
+		healthBar.SetStatsMaxAmount((int)_charStatus.health);
 
 		UpdateMoveableCells();
 	}
@@ -412,7 +419,7 @@ public class Character : MonoBehaviour {
 		_hasStartAttack = false;
 		_attackDone = false;
 		// restore action points
-		_actionPoints = maxActionPoints;
+		_charStatus.SetAP(_charStatus.maxActionPoints);
 		// restore the moveable cells
 		UpdateMoveableCells();
 	}
@@ -435,7 +442,7 @@ public class Character : MonoBehaviour {
 	}
 
 	public void UpdateMoveableCells() {
-		_allCurMovableCells = HexMap.hexMap.AllPossibleDestinationCells(charCurHexCell, actionPoints);
+		_allCurMovableCells = HexMap.hexMap.AllPossibleDestinationCells(charCurHexCell, _charStatus.actionPoints);
 	}
 
 	/// <summary>
@@ -520,14 +527,10 @@ public class Character : MonoBehaviour {
 	public void TakeDamage(uint damageAmount) {
 		ECharacterActionState curState = _characterCurrentActionState;
 		SwitchActionStateTo(ECharacterActionState.Hurting);
-		if (_health >= damageAmount) {
-			_health = _health - damageAmount;
-		} else {
-			_health = 0;
-		}
+		_charStatus.HealthDecrease(damageAmount);
 
 		// UI adjustments
-		healthBar.SetStatsCurAmount((int)_health);
+		healthBar.SetStatsCurAmount((int)_charStatus.health);
 		string txtPop = "-" + damageAmount.ToString();
 		TextPopup.Create(transform.position, txtPop, damageTextNormalSizeRatio);
 	}

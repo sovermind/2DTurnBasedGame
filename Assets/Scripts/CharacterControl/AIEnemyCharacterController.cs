@@ -50,7 +50,7 @@ public class AIEnemyCharacterController : MyCharacterController {
 				break;
 			case ECharacterActionState.Idle:
 				// If still have action points, move towards it's target
-				if (curCharactor.actionPoints > 0 && !curCharactor.attackDone) {
+				if (curCharactor.charStatus.actionPoints > 0 && !curCharactor.attackDone) {
 					// Make enemy facing the target cell
 					curCharactor.SetCharacterFacingDirection(curTargetCell);
 					// Get a path from cur pos to target pos
@@ -106,9 +106,9 @@ public class AIEnemyCharacterController : MyCharacterController {
 			int nextMoveCost = MapManager.GetTileCostFromHexCell(nextCell);
 			gameObject.transform.position = charNavigation.GetCurPathCellWorldPos();
 			HexCell curTargetCell = curCharactor.curTargetCharacter.charCurHexCell;
-			if (curCharactor.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
+			if (curCharactor.charStatus.actionPoints >= nextMoveCost && !curCharactor.IsTargetAttackable(curTargetCell)) {
 				charNavigation.MoveOneStep(true);
-				curCharactor.actionPoints = curCharactor.actionPoints - nextMoveCost;
+				curCharactor.charStatus.SetAP(curCharactor.charStatus.actionPoints - nextMoveCost);
 				yield return new WaitForSeconds(curCharactor.movingIntervalSec);
 			} else {
 				break;

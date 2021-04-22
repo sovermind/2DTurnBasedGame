@@ -10,7 +10,7 @@ public class WarriorBleedBlade : SkillSO {
 	public int bleedAffectTurns;
 
 	public override void PerformActiveSkill(Character attacker, Character defender) {
-		int totalInitialDamage = initialDamage + (int)(attacker.attack * initialDamageAttackerMultipler) - defender.defend;
+		int totalInitialDamage = initialDamage + (int)(attacker.charStatus.attack * initialDamageAttackerMultipler) - defender.charStatus.defend;
 		totalInitialDamage = totalInitialDamage > 0 ? totalInitialDamage : 0;
 		defender.TakeDamage((uint)(totalInitialDamage));
 

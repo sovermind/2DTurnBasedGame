@@ -1518,6 +1518,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &736574169 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5426394838096276227, guid: 6b34fdd8df5a48e4a8aa877c6047493d,
+    type: 3}
+  m_PrefabInstance: {fileID: 5426394837340175612}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &736574170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736574169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81360fafbbe3a4499d804af27c3c4ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _health: 100
+  _maxHealth: 100
+  _attack: 10
+  _defend: 5
+  _actionPoints: 4
+  _maxActionPoints: 4
 --- !u!1 &916344130
 GameObject:
   m_ObjectHideFlags: 0
@@ -1971,6 +1995,7 @@ GameObject:
   - component: {fileID: 1163862863}
   - component: {fileID: 1163862864}
   - component: {fileID: 1163862862}
+  - component: {fileID: 1163862865}
   m_Layer: 0
   m_Name: UndeadSkeleton
   m_TagString: Enemy
@@ -2093,14 +2118,26 @@ MonoBehaviour:
   _characterCurrentActionState: 0
   hasFinishedThisTurn: 0
   hasStartedThisTurn: 0
-  _health: 100
-  _maxHealth: 100
-  _attack: 10
-  _defend: 2
-  _actionPoints: 4
-  _maxActionPoints: 4
   curCharbasicAttack: {fileID: 11400000, guid: 45cbefb998501ff45a92bb998b8602b3, type: 2}
   allPossibleActiveSkills: []
+--- !u!114 &1163862865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1163862859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81360fafbbe3a4499d804af27c3c4ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _health: 100
+  _maxHealth: 100
+  _attack: 8
+  _defend: 4
+  _actionPoints: 4
+  _maxActionPoints: 4
 --- !u!1 &1254852091 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8869576514182726692, guid: 9f1e5197ac6624642909c4fddf061cd9,
@@ -6965,6 +7002,11 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 425242496}
+    - target: {fileID: 2218077939547170325, guid: 6b34fdd8df5a48e4a8aa877c6047493d,
+        type: 3}
+      propertyPath: _charStatus
+      value: 
+      objectReference: {fileID: 736574170}
     - target: {fileID: 2878470836927472101, guid: 6b34fdd8df5a48e4a8aa877c6047493d,
         type: 3}
       propertyPath: m_textInfo.characterCount
@@ -7254,6 +7296,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5426394838096274684, guid: 6b34fdd8df5a48e4a8aa877c6047493d,
+        type: 3}
+      propertyPath: m_FlipX
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6b34fdd8df5a48e4a8aa877c6047493d, type: 3}
