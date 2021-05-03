@@ -29,6 +29,7 @@ struct SkillStatus {
 public class Character : MonoBehaviour {
 	[Header("UI Related")]
 	public StatsBarController healthBar;
+	public CharacterInfoPanelController infoPanelController;
 
 	private SpriteRenderer _charSpriteRenderer;
 	public SpriteRenderer charSpriteRenderer {
@@ -42,9 +43,6 @@ public class Character : MonoBehaviour {
 		get {
 			return _charFaceRight;
 		}
-		//set {
-		//	_charFaceRight = value;
-		//}
 	}
 
 	private float damageTextNormalSizeRatio = 1.05f;
@@ -97,57 +95,6 @@ public class Character : MonoBehaviour {
 			return _charStatus;
 		}
 	}
-	//[SerializeField]
-	//private uint _health;
-	//public uint health {
-	//	get {
-	//		return _health;
-	//	}
-	//}
-
-	//[SerializeField]
-	//private uint _maxHealth;
-	//public uint maxHealth {
-	//	get {
-	//		return _maxHealth;
-	//	}
-	//}
-
-	//[SerializeField]
-	//private int _attack;
-	//public int attack {
-	//	get {
-	//		return _attack;
-	//	}
-	//}
-
-	//[SerializeField]
-	//private int _defend;
-	//public int defend {
-	//	get {
-	//		return _defend;
-	//	}
-	//}
-
-	//[SerializeField]
-	//private int _actionPoints;
-	//public int actionPoints {
-	//	set {
-	//		_actionPoints = value;
-	//	}
-
-	//	get {
-	//		return _actionPoints;
-	//	}
-	//}
-
-	//[SerializeField]
-	//private int _maxActionPoints = 4;
-	//public int maxActionPoints {
-	//	get {
-	//		return _maxActionPoints;
-	//	}
-	//}
 
 	private string _curCharacterName;
 

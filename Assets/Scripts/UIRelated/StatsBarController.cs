@@ -24,13 +24,4 @@ public class StatsBarController : MonoBehaviour {
 		barSlider.maxValue = maxAmount;
 		barSlider.value = maxAmount;
 	}
-
-    // Start is called before the first frame update
-    void Start() {
-    }
-
-    // Update is called once per frame
-    void Update() {
-        
-    }
 }

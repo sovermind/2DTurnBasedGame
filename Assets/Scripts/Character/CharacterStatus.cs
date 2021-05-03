@@ -8,6 +8,30 @@ using UnityEngine;
 /// </summary>
 public class CharacterStatus : MonoBehaviour {
 	[SerializeField]
+	private int _charLevel;
+	public int charLevel {
+		get {
+			return _charLevel;
+		}
+	}
+
+	[SerializeField]
+	private int _maxLevel;
+	public int maxLevel {
+		get {
+			return _maxLevel;
+		}
+	}
+
+	[SerializeField]
+	private int _currentXP;
+	public int currentXP {
+		get {
+			return _currentXP;
+		}
+	}
+
+	[SerializeField]
 	private uint _health;
 	public uint health {
 		get {
@@ -59,7 +83,32 @@ public class CharacterStatus : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Each element represents total experience required to next level
+	/// 0's element is 0 because lowest level is 1 and do not require any experience to reach
+	/// </summary>
+	[SerializeField]
+	private int[] _nextLevelRequiredXP;
+	public int[] nextLevelRequiredXP {
+		get {
+			return _nextLevelRequiredXP;
+		}
+	}
+
+	private void Awake() {
+		// Set up the experience required
+		_nextLevelRequiredXP = new int[_maxLevel];
+		_nextLevelRequiredXP[0] = 0;
+		_nextLevelRequiredXP[1] = 100;
+
+		for (int i = 2; i < _maxLevel; i ++) {
+			_nextLevelRequiredXP[i] = _nextLevelRequiredXP[1] + Mathf.RoundToInt(_nextLevelRequiredXP[i - 1] * 1.2f);
+		}
+
+	}
+
 	private void Start() {
+		_charLevel = 1;
 		_health = _maxHealth;
 		_actionPoints = _maxActionPoints;
 	}
@@ -91,5 +140,32 @@ public class CharacterStatus : MonoBehaviour {
 		else {
 			_health = 0;
 		}
+	}
+
+	/// <summary>
+	/// Add certain amount of XP to the character
+	/// </summary>
+	/// <param name="xp"></param>
+	public void AddXP(int xp) {
+		_currentXP += xp;
+		// Cap the current xp to the max xp possible for this character
+		if (_currentXP > _nextLevelRequiredXP[_maxLevel - 1]) {
+			_currentXP = _nextLevelRequiredXP[_maxLevel - 1];
+		}
+
+		// Now check if the result xp need level up
+		while (_charLevel < _maxLevel && _currentXP > _nextLevelRequiredXP[_charLevel]) {
+			performLevelUp();
+		}
+	}
+
+	/// <summary>
+	/// Perform a level up to the char. Should
+	/// 1. increase all necessary status values
+	/// 2. unlock skills if meet required level
+	/// 3. update UI for player info
+	/// </summary>
+	private void performLevelUp() {
+
 	}
 }

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+
 
 /// <summary>
 /// This is the base class for all character controller.
@@ -9,7 +11,7 @@ using UnityEngine;
 public class MyCharacterController : MonoBehaviour {
 
 	public Character curCharactor;
-	public GameObject characterDetailInfoPanel;
+	public GameObject characterDetailInfoPanel;       // UI panel which shows character's detail information
 	protected Camera mainCam;
 	protected NavigationManager charNavigation;       // character navigation manager
 	protected List<HexCell> curPath;                  // current path ready to be execute
@@ -35,9 +37,15 @@ public class MyCharacterController : MonoBehaviour {
 	protected virtual void Update() {
 		Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
 		if (CommonUtil.IsPosInsideBound2D(mouseWorldPos, curCharactor.charSpriteRenderer.bounds)) {
-			characterDetailInfoPanel.SetActive(true);
+			// Keep updating the info based on character's status
+			UpdateCharacterInfoPanel();
+			if (!characterDetailInfoPanel.activeSelf) {
+				characterDetailInfoPanel.SetActive(true);
+			}
 		} else {
-			characterDetailInfoPanel.SetActive(false);			
+			if (characterDetailInfoPanel.activeSelf) {
+				characterDetailInfoPanel.SetActive(false);
+			}
 		}
 
 		// Show attack range if character is in attack mode
@@ -76,5 +84,19 @@ public class MyCharacterController : MonoBehaviour {
 		yield return new WaitForSeconds(tSec);
 		waitInCoroutine = false;
 		curCharactor.SwitchActionStateTo(newState);
+	}
+
+	private void UpdateCharacterInfoPanel() {
+		CharacterStatus charStatus = curCharactor.charStatus;
+
+		// Level
+		curCharactor.infoPanelController.SetLevelDisplay(charStatus.charLevel, charStatus.maxLevel);
+
+		// Exp.
+		curCharactor.infoPanelController.SetExperienceDisplay(charStatus.currentXP, charStatus.nextLevelRequiredXP[charStatus.charLevel]);
+
+		// Attack, defend
+		curCharactor.infoPanelController.SetAttackDisplay(charStatus.attack);
+		curCharactor.infoPanelController.SetDefendDisplay(charStatus.defend);
 	}
 }
